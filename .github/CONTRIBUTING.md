@@ -16,12 +16,12 @@ Pull requests are very welcome. Please use the standard 'fork and pull' GitHub m
 All pull requests must pass travis CI builds so please ensure your code follows PSR2 standards and passes all unit tests.
 All tests can be run from the command line by running the following command:
 ```bash
-./vendor/bin/phpunit -v
+composer test
 ```
 
 If your IDE doesn't support PHP CodeSniffer you can run the following command to test all code against PSR2:
 ```bash
-find -L .  -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n 1 -P 4 ./vendor/bin/phpcs --standard="PSR2" -v
+composer sniff
 ```
 
 Any new features should also include an accompanying unit test located within the relevant directory within `tests`.

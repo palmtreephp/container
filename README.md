@@ -1,9 +1,9 @@
-# Palmtree Service Container
+# Palmtree Container
 
-[![License](http://img.shields.io/packagist/l/palmtree/service-container.svg)](LICENSE)
-[![Travis](https://img.shields.io/travis/palmtreephp/service-container.svg)](https://travis-ci.org/palmtreephp/service-container)
-[![Scrutinizer](https://img.shields.io/scrutinizer/g/palmtreephp/service-container.svg)](https://scrutinizer-ci.com/g/palmtreephp/service-container/)
-[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/palmtreephp/service-container.svg)](https://scrutinizer-ci.com/g/palmtreephp/service-container/)
+[![License](http://img.shields.io/packagist/l/palmtree/container.svg)](LICENSE)
+[![Travis](https://img.shields.io/travis/palmtreephp/container.svg)](https://travis-ci.org/palmtreephp/container)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/palmtreephp/container.svg)](https://scrutinizer-ci.com/g/palmtreephp/container/)
+[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/palmtreephp/container.svg)](https://scrutinizer-ci.com/g/palmtreephp/container/)
 
 A [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible service container for Palmtree PHP.
 
@@ -16,7 +16,7 @@ Supports environment variable parameters.
 
 Use composer to add the package to your dependencies:
 ```bash
-composer require palmtree/service-container
+composer require palmtree/container
 ```
 
 ## Usage
@@ -60,7 +60,7 @@ parameters:
 Create container:
 ```php
 <?php
-use Palmtree\ServiceContainer\ContainerFactory;
+use Palmtree\Container\ContainerFactory;
 
 $container = ContainerFactory::create('config.yml');
 

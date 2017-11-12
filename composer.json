@@ -1,5 +1,5 @@
 {
-  "name": "palmtree/service-container",
+  "name": "palmtree/container",
   "type": "library",
   "description": "Service Container component for Palmtree PHP",
   "keywords": [
@@ -23,7 +23,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Palmtree\\ServiceContainer\\": "src"
+      "Palmtree\\Container\\": "src"
     }
   },
   "provide": {

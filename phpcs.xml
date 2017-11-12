@@ -3,8 +3,6 @@
     <description>PSR2 Coding Standard For Palmtree Components</description>
 
     <file>src</file>
-    <file>tests</file>
-    <file>examples</file>
 
     <arg name="report" value="summary"/>
     <arg name="colors"/>

@@ -1,9 +1,9 @@
 <?php
 
-namespace Palmtree\ServiceContainer;
+namespace Palmtree\Container;
 
-use Palmtree\ServiceContainer\Exception\ParameterNotFoundException;
-use Palmtree\ServiceContainer\Exception\ServiceNotFoundException;
+use Palmtree\Container\Exception\ParameterNotFoundException;
+use Palmtree\Container\Exception\ServiceNotFoundException;
 use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface

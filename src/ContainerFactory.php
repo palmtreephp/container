@@ -1,6 +1,6 @@
 <?php
 
-namespace Palmtree\ServiceContainer;
+namespace Palmtree\Container;
 
 use Symfony\Component\Yaml\Yaml;
 

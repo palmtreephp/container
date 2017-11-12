@@ -1,6 +1,6 @@
 <?php
 
-namespace Palmtree\ServiceContainer\Exception;
+namespace Palmtree\Container\Exception;
 
 class ServiceNotFoundException extends NotFoundException
 {
