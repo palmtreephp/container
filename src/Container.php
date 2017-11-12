@@ -7,6 +7,13 @@ use Palmtree\ServiceContainer\Exception\ServiceNotFoundException;
 
 class Container
 {
+    /** Regex for parameters e.g '%my.parameter%' */
+    const PATTERN_PARAMETER = '/^%([^%]+)%$/';
+    /** Regex for environment variable parameters e.g '%env(MY_ENV_VAR)%' */
+    const PATTERN_ENV_PARAMETER = '/^env\(([^\)]+)\)$/';
+    /** Regex for services e.g '@myservice' */
+    const PATTERN_SERVICE = '/^@(.+)$/';
+
     protected $services;
     protected $parameters;
 
@@ -120,18 +127,16 @@ class Container
         foreach ($args as $key => $arg) {
             if (is_array($arg)) {
                 $args[$key] = $this->parseArgs($arg);
-            } elseif (preg_match('/^%([^%]+)%$/', $arg, $matches)) {
-                // Parameters
-                $parameter  = $matches[1];
-                $envMatches = [];
+            } elseif (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
+                $parameter = $matches[1];
 
-                if (preg_match('/^env\(([^\)]+)\)$/', $parameter, $envMatches)) {
+                $envMatches = [];
+                if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
                     $args[$key] = getenv($envMatches[1]);
                 } else {
                     $args[$key] = $this->getParameter($parameter);
                 }
-            } elseif (preg_match('/^@(.+)$/', $arg, $matches)) {
-                // Services
+            } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
                 $args[$key] = $this->get($matches[1]);
             }
         }
