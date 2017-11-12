@@ -5,7 +5,7 @@
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/palmtreephp/service-container.svg)](https://scrutinizer-ci.com/g/palmtreephp/service-container/)
 [![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/palmtreephp/service-container.svg)](https://scrutinizer-ci.com/g/palmtreephp/service-container/)
 
-A service container for Palmtree PHP.
+A [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible service container for Palmtree PHP.
 
 Supports environment variable parameters.
 
@@ -39,7 +39,7 @@ imports:
 services:
   my_service:
     class: MyNamespace\MyService
-    arguments: ['arg1', '%database_name%']
+    arguments: [arg1, '%database_name%']
 
   my_other_service:
     class: MyNamespace\MyOtherService
@@ -47,7 +47,7 @@ services:
     calls:
       -
         method: doThing
-        arguments: ['arg1', 'arg2']
+        arguments: [arg1, arg2]
       
 ```
 
@@ -68,6 +68,9 @@ $container->get('my_service')->myMethod();
 
 $container->getParameter('db_username');
 ```
+
+## Prior Art
+Inspired by Symfony's [DependencyInjection](https://symfony.com/doc/current/components/dependency_injection.html) component.
 
 ## License
 

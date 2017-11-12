@@ -4,8 +4,9 @@ namespace Palmtree\ServiceContainer;
 
 use Palmtree\ServiceContainer\Exception\ParameterNotFoundException;
 use Palmtree\ServiceContainer\Exception\ServiceNotFoundException;
+use Psr\Container\ContainerInterface;
 
-class Container
+class Container implements ContainerInterface
 {
     /** Regex for parameters e.g '%my.parameter%' */
     const PATTERN_PARAMETER = '/^%([^%]+)%$/';
