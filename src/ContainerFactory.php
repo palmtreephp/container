@@ -13,14 +13,14 @@ class ContainerFactory
      */
     public static function create($configFile)
     {
-        $yaml = static::parseYaml($configFile);
+        $yaml = static::parseYamlFile($configFile);
 
         $container = new Container($yaml['services'], $yaml['parameters']);
 
         return $container;
     }
 
-    protected static function parseYaml($file)
+    protected static function parseYamlFile($file)
     {
         $data = Yaml::parse(file_get_contents($file));
 
@@ -55,12 +55,13 @@ class ContainerFactory
                     }
 
                     if ($root) {
-                        $data = array_replace_recursive($data, static::parseYaml($resource));
-                        unset($data['imports']);
+                        $reference = &$data;
                     } else {
-                        $data[$key] = array_replace_recursive($data[$key], static::parseYaml($resource));
-                        unset($data[$key]['imports']);
+                        $reference = &$data[$key];
                     }
+
+                    $reference = array_replace_recursive($reference, static::parseYamlFile($resource));
+                    unset($reference['imports']);
                 }
             }
         }
