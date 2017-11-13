@@ -84,7 +84,8 @@ class Container implements ContainerInterface
     {
         $this->services[$key] = $service;
 
-        if (!isset($service['lazy']) || $service['lazy'] === true) {
+        // Instantiate the service unless lazy loading is explicitly set to false.
+        if (!isset($service['lazy']) || $service['lazy'] === false) {
             $this->get($key);
         }
     }
