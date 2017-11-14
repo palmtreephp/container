@@ -2,6 +2,7 @@
 
 namespace Palmtree\Container;
 
+use Palmtree\Container\Definition\Definition;
 use Palmtree\Container\Exception\ParameterNotFoundException;
 use Palmtree\Container\Exception\ServiceNotFoundException;
 use Psr\Container\ContainerInterface;
@@ -15,16 +16,38 @@ class Container implements ContainerInterface
     /** Regex for services e.g '@myservice' */
     const PATTERN_SERVICE = '/^@(.+)$/';
 
+    /** @var Definition[]|mixed[] */
     protected $services;
+    /** @var array */
     protected $parameters;
 
     public function __construct(array $services = [], array $parameters = [])
     {
         $this->parameters = $this->parseArgs($parameters);
 
-        foreach ($services as $key => $service) {
-            $this->add($key, $service);
+        foreach ($services as $key => $definitionArgs) {
+            $this->add($key, $definitionArgs);
         }
+    }
+
+    /**
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     * @throws ParameterNotFoundException
+     */
+    public function getParameter($key, $default = null)
+    {
+        if (!array_key_exists($key, $this->parameters)) {
+            if (func_num_args() < 2) {
+                throw new ParameterNotFoundException($key);
+            }
+
+            return $default;
+        }
+
+        return $this->parameters[$key];
     }
 
     /**
@@ -51,7 +74,7 @@ class Container implements ContainerInterface
 
         $service = $this->services[$key];
 
-        if (is_array($service)) {
+        if ($service instanceof Definition) {
             $service = $this->create($service);
         }
 
@@ -62,55 +85,41 @@ class Container implements ContainerInterface
 
     /**
      * @param string $key
-     * @param mixed  $default
+     * @param array  $definitionArgs
      *
-     * @return mixed
-     * @throws ParameterNotFoundException
+     * @return Definition
      */
-    public function getParameter($key, $default = null)
+    protected function add($key, array $definitionArgs)
     {
-        if (!array_key_exists($key, $this->parameters)) {
-            if (func_num_args() < 2) {
-                throw new ParameterNotFoundException($key);
-            }
+        $definition = Definition::fromYaml($definitionArgs);
 
-            return $default;
-        }
+        $this->services[$key] = $definition;
 
-        return $this->parameters[$key];
-    }
-
-    protected function add($key, $service)
-    {
-        $this->services[$key] = $service;
-
-        if (!isset($service['lazy']) || $service['lazy'] === true) {
+        if (!$definition->isLazy()) {
             $this->get($key);
         }
+
+        return $definition;
     }
 
     /**
-     * @param array $serviceArgs
+     * Creates a service as defined by the Definition object.
+     *
+     * @param Definition $definition
      *
      * @return mixed
      */
-    protected function create(array $serviceArgs)
+    protected function create(Definition $definition)
     {
-        $class = $serviceArgs['class'];
+        $class = $definition->getClass();
+        $args  = $this->parseArgs($definition->getArguments());
 
-        if (isset($serviceArgs['arguments'])) {
-            $args    = $this->parseArgs($serviceArgs['arguments']);
-            $service = new $class(...$args);
-        } else {
-            $service = new $class;
-        }
+        $service = new $class(...$args);
 
-        if (isset($serviceArgs['calls'])) {
-            foreach ($serviceArgs['calls'] as $call) {
-                $method = $call['method'];
-                $args   = isset($call['arguments']) ? $call['arguments'] : [];
-                $service->$method(...$args);
-            }
+        foreach ($definition->getMethodCalls() as $methodCall) {
+            $methodName = $methodCall->getName();
+            $methodArgs = $this->parseArgs($methodCall->getArguments());
+            $service->$methodName(...$methodArgs);
         }
 
         return $service;
