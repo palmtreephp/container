@@ -32,11 +32,14 @@ class Resolver
      */
     public function resolve(array &$args)
     {
-        foreach ($args as &$reference) {
-            if (is_array($reference)) {
-                $this->resolve($reference);
-            } elseif (!($this->resolveService($reference) || $this->resolveParameter($reference))) {
-                throw new InvalidReferenceException("Unable to resolve reference $reference");
+        foreach ($args as &$value) {
+            if (is_array($value)) {
+                $this->resolve($value);
+            } else {
+                $resolved = $this->resolveService($value);
+                if (!$resolved) {
+                    $resolved = $this->resolveParameter($value);
+                }
             }
         }
 
@@ -49,16 +52,16 @@ class Resolver
      * If the value looks like an environment variable e.g '%env(MY_ENV_VAR)%' we call getenv(MY_ENV_VAR). Otherwise
      * we pass the key to @see Container::getParameter()
      *
-     * @param string $arg The parameter key e.g '%my_param%' or '%env(MY_ENV_VAR)%'
+     * @param string $value The parameter reference e.g '%my_param%' or '%env(MY_ENV_VAR)%'
      * @return bool Whether the parameter was resolved or not.
      */
-    protected function resolveParameter(&$arg)
+    protected function resolveParameter(&$value)
     {
-        if (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
+        if (preg_match(static::PATTERN_PARAMETER, $value, $matches)) {
             if (preg_match(static::PATTERN_ENV_PARAMETER, $matches[1], $envMatches)) {
-                $arg = getenv($envMatches[1]);
+                $value = getenv($envMatches[1]);
             } else {
-                $arg = $this->container->getParameter($matches[1]);
+                $value = $this->container->getParameter($matches[1]);
             }
 
             return true;
@@ -72,13 +75,14 @@ class Resolver
      *
      * e.g: '@my_service' should be replaced by an instance of the MyService class.
      *
-     * @param string $arg The service reference e.g '@my_service'
+     * @param string $key The service reference e.g '@my_service'
+     * @param mixed $value The value passed by reference.
      * @return bool Whether the service was resolved or not.
      */
-    protected function resolveService(&$arg)
+    protected function resolveService(&$value)
     {
-        if (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
-            $arg = $this->container->get($matches[1]);
+        if (preg_match(static::PATTERN_SERVICE, $value, $matches)) {
+            $value = $this->container->get($matches[1]);
 
             return true;
         }

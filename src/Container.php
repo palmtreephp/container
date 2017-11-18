@@ -24,10 +24,12 @@ class Container implements ContainerInterface
     {
         $this->resolver = new Resolver($this);
 
-        $this->parameters = $this->resolver->resolve($parameters);
+        $this->parameters = $parameters;
+
+        $this->resolver->resolve($this->parameters);
 
         foreach ($services as $id => $definitionArgs) {
-            $this->register($id, $definitionArgs);
+            $this->register($id, Definition::fromArray($definitionArgs));
         }
     }
 
@@ -125,13 +127,13 @@ class Container implements ContainerInterface
 
     /**
      * @param string $id
-     * @param array $definitionArgs
+     * @param Definition $definition
      *
      * @return Definition
      */
-    public function register($id, array $definitionArgs)
+    public function register($id, Definition $definition)
     {
-        $this->services[$id] = Definition::fromArray($definitionArgs);
+        $this->services[$id] = $definition;
 
         return $this->services[$id];
     }

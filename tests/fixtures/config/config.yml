@@ -1,0 +1,17 @@
+parameters:
+  baz: 'Baz!'
+
+services:
+  bar.test:
+    class: Palmtree\Container\Tests\Fixtures\Bar
+  foo.test:
+    class: Palmtree\Container\Tests\Fixtures\Foo
+    arguments:
+      - '@bar.test'
+      - '%baz%'
+  baz.test:
+    class: Palmtree\Container\Tests\Fixtures\Baz
+    calls:
+      -
+        method: setFoo
+        arguments: ['Foo!']
