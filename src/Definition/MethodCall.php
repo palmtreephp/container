@@ -10,17 +10,17 @@ class MethodCall
     protected $arguments = [];
 
     /**
-     * @param array $yaml
+     * @param array $args
      * @return MethodCall
      */
-    public static function fromYaml(array $yaml)
+    public static function fromArray(array $args)
     {
-        $methodCall = new self();
+        $methodCall = new static();
 
-        $methodCall->setName($yaml['method']);
+        $methodCall->setName($args['method']);
 
-        if (isset($yaml['arguments'])) {
-            $methodCall->setArguments($yaml['arguments']);
+        if (isset($args['arguments'])) {
+            $methodCall->setArguments($args['arguments']);
         }
 
         return $methodCall;

@@ -2,7 +2,7 @@
 
 namespace Palmtree\Container\Exception;
 
-class ServiceNotFoundException extends NotFoundException
+class ContainerBuiltException extends ContainerException
 {
     public function __construct($id, $code = 0, \Throwable $previous = null)
     {

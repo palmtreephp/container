@@ -8,14 +8,19 @@ class ContainerFactory
 {
     /**
      * @param string $configFile
+     * @param bool $build
      *
      * @return Container
      */
-    public static function create($configFile)
+    public static function create($configFile, $build = true)
     {
         $yaml = static::parseYamlFile($configFile);
 
         $container = new Container($yaml['services'], $yaml['parameters']);
+
+        if ($build) {
+            $container->build();
+        }
 
         return $container;
     }
@@ -37,11 +42,11 @@ class ContainerFactory
             }
 
             $imports = null;
-            $root    = false;
+            $root = false;
 
             if ($key === 'imports') {
                 $imports = $value;
-                $root    = true;
+                $root = true;
             } elseif (isset($value['imports'])) {
                 $imports = $value['imports'];
             }

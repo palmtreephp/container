@@ -1,0 +1,20 @@
+parameters:
+  some_param: Hello, World!
+  some_other_param: true
+  some_arg_param: 7
+
+services:
+  some_service:
+    class: Palmtree\Container\Example\ExampleDependency
+    arguments: [ '%some_other_param%' ]
+  my_service:
+    class: Palmtree\Container\Example\ExampleService
+    lazy: true
+    arguments:
+      - '@some_service'
+      - ['some', 'array']
+      - '%some_param%'
+    calls:
+      -
+        method: doLoadThing
+        arguments: ['%some_arg_param%']

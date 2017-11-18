@@ -3,36 +3,37 @@
 namespace Palmtree\Container;
 
 use Palmtree\Container\Definition\Definition;
+use Palmtree\Container\Exception\ContainerBuiltException;
+use Palmtree\Container\Exception\DefinitionNotFoundException;
 use Palmtree\Container\Exception\ParameterNotFoundException;
 use Palmtree\Container\Exception\ServiceNotFoundException;
 use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
-    /** Regex for parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/^%([^%]+)%$/';
-    /** Regex for environment variable parameters e.g '%env(MY_ENV_VAR)%' */
-    const PATTERN_ENV_PARAMETER = '/^env\(([^\)]+)\)$/';
-    /** Regex for services e.g '@myservice' */
-    const PATTERN_SERVICE = '/^@(.+)$/';
-
-    /** @var Definition[]|mixed[] */
+    /** @var array */
     protected $services;
     /** @var array */
     protected $parameters;
+    /** @var bool */
+    protected $built = false;
+    /** @var  Resolver */
+    protected $resolver;
 
     public function __construct(array $services = [], array $parameters = [])
     {
-        $this->parameters = $this->parseArgs($parameters);
+        $this->resolver = new Resolver($this);
 
-        foreach ($services as $key => $definitionArgs) {
-            $this->add($key, $definitionArgs);
+        $this->parameters = $this->resolver->resolve($parameters);
+
+        foreach ($services as $id => $definitionArgs) {
+            $this->register($id, $definitionArgs);
         }
     }
 
     /**
      * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed
      * @throws ParameterNotFoundException
@@ -51,55 +52,88 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string $key
-     *
-     * @return bool
+     * @param string $id
+     * @return mixed
+     * @throws ContainerBuiltException
+     * @throws DefinitionNotFoundException
      */
-    public function has($key)
+    public function getDefinition($id)
     {
-        return array_key_exists($key, $this->services);
+        if ($this->isBuilt()) {
+            throw new ContainerBuiltException("Impossible to get Definition object. Container already built.");
+        }
+
+        if (!$this->has($id)) {
+            throw new DefinitionNotFoundException($id);
+        }
+
+        if (!$this->services[$id] instanceof Definition) {
+            throw new DefinitionNotFoundException("Impossible to get Definition object. Service already created.");
+        }
+
+        return $this->services[$id];
     }
 
     /**
-     * @param string $key
+     * @param string $id
+     *
+     * @return bool
+     */
+    public function has($id)
+    {
+        return array_key_exists($id, $this->services);
+    }
+
+    /**
+     * @param string $id
      *
      * @return mixed
      * @throws ServiceNotFoundException
      */
-    public function get($key)
+    public function get($id)
     {
-        if (!$this->has($key)) {
-            throw new ServiceNotFoundException($key);
+        if (!$this->has($id)) {
+            throw new ServiceNotFoundException($id);
         }
 
-        $service = $this->services[$key];
-
-        if ($service instanceof Definition) {
-            $service = $this->create($service);
+        if ($this->services[$id] instanceof Definition) {
+            $this->services[$id] = $this->create($this->services[$id]);
         }
 
-        $this->services[$key] = $service;
+        return $this->services[$id];
+    }
 
-        return $this->services[$key];
+    public function build()
+    {
+        if ($this->isBuilt()) {
+            throw new ContainerBuiltException("Container already built.");
+        }
+
+        foreach ($this->services as $id => $definition) {
+            if ($definition instanceof Definition && !$definition->isLazy()) {
+                $this->get($id);
+            }
+        }
+
+        $this->built = true;
+    }
+
+    public function isBuilt()
+    {
+        return $this->built;
     }
 
     /**
-     * @param string $key
-     * @param array  $definitionArgs
+     * @param string $id
+     * @param array $definitionArgs
      *
      * @return Definition
      */
-    protected function add($key, array $definitionArgs)
+    public function register($id, array $definitionArgs)
     {
-        $definition = Definition::fromYaml($definitionArgs);
+        $this->services[$id] = Definition::fromArray($definitionArgs);
 
-        $this->services[$key] = $definition;
-
-        if (!$definition->isLazy()) {
-            $this->get($key);
-        }
-
-        return $definition;
+        return $this->services[$id];
     }
 
     /**
@@ -112,45 +146,16 @@ class Container implements ContainerInterface
     protected function create(Definition $definition)
     {
         $class = $definition->getClass();
-        $args  = $this->parseArgs($definition->getArguments());
+        $args = $this->resolver->resolve($definition->getArguments());
 
         $service = new $class(...$args);
 
         foreach ($definition->getMethodCalls() as $methodCall) {
             $methodName = $methodCall->getName();
-            $methodArgs = $this->parseArgs($methodCall->getArguments());
+            $methodArgs = $this->resolver->resolve($methodCall->getArguments());
             $service->$methodName(...$methodArgs);
         }
 
         return $service;
-    }
-
-    /**
-     * @param array $args
-     *
-     * @return array
-     */
-    protected function parseArgs(array $args)
-    {
-        $matches = [];
-
-        foreach ($args as $key => $arg) {
-            if (is_array($arg)) {
-                $args[$key] = $this->parseArgs($arg);
-            } elseif (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
-                $parameter = $matches[1];
-
-                $envMatches = [];
-                if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
-                    $args[$key] = getenv($envMatches[1]);
-                } else {
-                    $args[$key] = $this->getParameter($parameter);
-                }
-            } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
-                $args[$key] = $this->get($matches[1]);
-            }
-        }
-
-        return $args;
     }
 }

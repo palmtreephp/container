@@ -16,31 +16,30 @@ class Definition
     protected $methodCalls = [];
 
     /**
-     * @param array $yaml
+     * @param array $args
      *
      * @return Definition
      *
      * @throws InvalidDefinitionException
      */
-    public static function fromYaml(array $yaml)
+    public static function fromArray(array $args)
     {
-        if (!isset($yaml['class'])) {
+        if (!isset($args['class'])) {
             throw new InvalidDefinitionException("Missing required 'class' argument. Must be a FQCN.");
         }
 
-        $definition = new self();
+        $definition = new static();
 
-        $definition
-            ->setClass($yaml['class'])
-            ->setLazy(isset($yaml['lazy']) ? $yaml['lazy'] : false);
+        $definition->setClass($args['class']);
+        $definition->setLazy(isset($args['lazy']) ? $args['lazy'] : false);
 
-        if (isset($yaml['arguments'])) {
-            $definition->setArguments($yaml['arguments']);
+        if (isset($args['arguments'])) {
+            $definition->setArguments($args['arguments']);
         }
 
-        if (isset($yaml['calls'])) {
-            foreach ($yaml['calls'] as $call) {
-                $methodCall = MethodCall::fromYaml($call);
+        if (isset($args['calls'])) {
+            foreach ($args['calls'] as $call) {
+                $methodCall = MethodCall::fromArray($call);
                 $definition->addMethodCall($methodCall);
             }
         }
@@ -100,6 +99,23 @@ class Definition
     public function setArguments(array $arguments)
     {
         $this->arguments = $arguments;
+        return $this;
+    }
+
+    /**
+     * @param int $index
+     * @param mixed $newArg
+     * @return Definition
+     * @throws \InvalidArgumentException
+     */
+    public function replaceArgument($index, $newArg)
+    {
+        if (!array_key_exists($index, $this->arguments)) {
+            throw new \InvalidArgumentException("Key $index does not exist.");
+        }
+
+        $this->arguments[$index] = $newArg;
+
         return $this;
     }
 
