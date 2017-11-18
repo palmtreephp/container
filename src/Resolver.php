@@ -2,8 +2,6 @@
 
 namespace Palmtree\Container;
 
-use Palmtree\Container\Exception\InvalidReferenceException;
-
 class Resolver
 {
     /** @var Container */
@@ -21,7 +19,6 @@ class Resolver
     /**
      * @param array $args
      * @return array
-     * @throws InvalidReferenceException
      */
     public function resolve(array &$args)
     {
