@@ -28,8 +28,8 @@ class Container implements ContainerInterface
 
         $this->resolver->resolve($this->parameters);
 
-        foreach ($services as $id => $definitionArgs) {
-            $this->register($id, Definition::fromArray($definitionArgs));
+        foreach ($services as $id => $args) {
+            $this->register($id, Definition::fromArray($args));
         }
     }
 
@@ -66,7 +66,7 @@ class Container implements ContainerInterface
         }
 
         if (!$this->has($id)) {
-            throw new DefinitionNotFoundException($id);
+            throw new DefinitionNotFoundException("No definition found with id $id");
         }
 
         if (!$this->services[$id] instanceof Definition) {
@@ -83,7 +83,7 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        return array_key_exists($id, $this->services);
+        return isset($this->services[$id]);
     }
 
     /**
@@ -105,6 +105,9 @@ class Container implements ContainerInterface
         return $this->services[$id];
     }
 
+    /**
+     * @throws ContainerBuiltException
+     */
     public function build()
     {
         if ($this->isBuilt()) {
@@ -112,14 +115,17 @@ class Container implements ContainerInterface
         }
 
         foreach ($this->services as $id => $definition) {
-            if ($definition instanceof Definition && !$definition->isLazy()) {
-                $this->get($id);
+            if (!$definition->isLazy()) {
+                $this->services[$id] = $this->create($definition);
             }
         }
 
         $this->built = true;
     }
 
+    /**
+     * @return bool
+     */
     public function isBuilt()
     {
         return $this->built;

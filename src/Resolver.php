@@ -6,13 +6,6 @@ use Palmtree\Container\Exception\InvalidReferenceException;
 
 class Resolver
 {
-    /** Regex for parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/^%([^%]+)%$/';
-    /** Sub Regex for parameters matching environment variables e.g '%env(MY_ENV_VAR)%' */
-    const PATTERN_ENV_PARAMETER = '/^env\(([^\)]+)\)$/';
-    /** Regex for services e.g '@myservice' */
-    const PATTERN_SERVICE = '/^@(.+)$/';
-
     /** @var Container */
     protected $container;
 
@@ -57,9 +50,9 @@ class Resolver
      */
     protected function resolveParameter(&$value)
     {
-        if (preg_match(static::PATTERN_PARAMETER, $value, $matches)) {
-            if (preg_match(static::PATTERN_ENV_PARAMETER, $matches[1], $envMatches)) {
-                $value = getenv($envMatches[1]);
+        if (preg_match('/^%(env\(([^\)]+)\)|[^%]+)%$/', $value, $matches)) {
+            if (!empty($matches[2])) {
+                $value = getenv($matches[2]);
             } else {
                 $value = $this->container->getParameter($matches[1]);
             }
@@ -81,7 +74,7 @@ class Resolver
      */
     protected function resolveService(&$value)
     {
-        if (preg_match(static::PATTERN_SERVICE, $value, $matches)) {
+        if (preg_match('/^@(.+)$/', $value, $matches)) {
             $value = $this->container->get($matches[1]);
 
             return true;

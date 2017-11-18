@@ -46,6 +46,17 @@ class ContainerTest extends TestCase
         $this->assertEquals('bar', $container->getParameter('baz'));
     }
 
+    public function testEnvParameterExpansion()
+    {
+        putenv('PHP_FOO=bar');
+
+        $container = new Container([], [
+            'foo' => '%env(PHP_FOO)%',
+        ]);
+
+        $this->assertEquals('bar', $container->getParameter('foo'));
+    }
+
     public function testDependencyInjection()
     {
         $container = ContainerFactory::create(__DIR__ . '/fixtures/config/config.yml');
@@ -75,5 +86,6 @@ class ContainerTest extends TestCase
 
         $this->assertEquals(0, Bar::$instances);
         $this->assertInstanceOf(Bar::class, $container->get('bar.test'));
+        $this->assertEquals(1, Bar::$instances);
     }
 }
