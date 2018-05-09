@@ -15,6 +15,14 @@ class ContainerFactory
     {
         $yaml = static::parseYamlFile($configFile);
 
+        if (!isset($yaml['services'])) {
+            $yaml['services'] = [];
+        }
+
+        if (!isset($yaml['parameters'])) {
+            $yaml['parameters'] = [];
+        }
+
         $container = new Container($yaml['services'], $yaml['parameters']);
 
         return $container;

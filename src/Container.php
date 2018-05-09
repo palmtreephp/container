@@ -17,13 +17,17 @@ class Container implements ContainerInterface
     const PATTERN_SERVICE = '/^@(.+)$/';
 
     /** @var Definition[]|mixed[] */
-    protected $services;
+    protected $services = [];
     /** @var array */
-    protected $parameters;
+    protected $parameters = [];
+
+    /** @var array */
+    protected $envCache = [];
 
     public function __construct(array $services = [], array $parameters = [])
     {
-        $this->parameters = $this->parseArgs($parameters);
+        $this->parameters = $parameters;
+        $this->parameters = $this->resolveArgs($this->parameters);
 
         foreach ($services as $key => $definitionArgs) {
             $this->add($key, $definitionArgs);
@@ -39,7 +43,7 @@ class Container implements ContainerInterface
      */
     public function getParameter($key, $default = null)
     {
-        if (!array_key_exists($key, $this->parameters)) {
+        if (!$this->hasParameter($key)) {
             if (func_num_args() < 2) {
                 throw new ParameterNotFoundException($key);
             }
@@ -55,9 +59,19 @@ class Container implements ContainerInterface
      *
      * @return bool
      */
+    public function hasParameter($key)
+    {
+        return isset($this->parameters[$key]) || array_key_exists($key, $this->parameters);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
     public function has($key)
     {
-        return array_key_exists($key, $this->services);
+        return isset($this->services[$key]) || array_key_exists($key, $this->services);
     }
 
     /**
@@ -112,13 +126,13 @@ class Container implements ContainerInterface
     protected function create(Definition $definition)
     {
         $class = $definition->getClass();
-        $args  = $this->parseArgs($definition->getArguments());
+        $args  = $this->resolveArgs($definition->getArguments());
 
         $service = new $class(...$args);
 
         foreach ($definition->getMethodCalls() as $methodCall) {
             $methodName = $methodCall->getName();
-            $methodArgs = $this->parseArgs($methodCall->getArguments());
+            $methodArgs = $this->resolveArgs($methodCall->getArguments());
             $service->$methodName(...$methodArgs);
         }
 
@@ -130,27 +144,64 @@ class Container implements ContainerInterface
      *
      * @return array
      */
-    protected function parseArgs(array $args)
+    protected function resolveArgs(array $args)
     {
-        $matches = [];
-
-        foreach ($args as $key => $arg) {
+        foreach ($args as $key => &$arg) {
             if (is_array($arg)) {
-                $args[$key] = $this->parseArgs($arg);
-            } elseif (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
-                $parameter = $matches[1];
-
-                $envMatches = [];
-                if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
-                    $args[$key] = getenv($envMatches[1]);
-                } else {
-                    $args[$key] = $this->getParameter($parameter);
-                }
-            } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
-                $args[$key] = $this->get($matches[1]);
+                $arg = $this->resolveArgs($arg);
+            } else {
+                $arg = $this->resolveArg($arg);
             }
         }
 
         return $args;
+    }
+
+    /**
+     * @param $arg
+     *
+     * @return mixed|string
+     * @throws ParameterNotFoundException
+     * @throws ServiceNotFoundException
+     */
+    protected function resolveArg($arg)
+    {
+        if (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
+            $parameter = $matches[1];
+
+            if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
+                $arg = $this->getEnv($envMatches[1]);
+            } else {
+                $arg = $this->getParameter($parameter);
+            }
+        } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
+            $arg = $this->get($matches[1]);
+        }
+
+        return $arg;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    protected function getEnv($key)
+    {
+        if (isset($this->envCache[$key]) || array_key_exists($key, $this->envCache)) {
+            return $this->envCache[$key];
+        }
+
+        $envVar = getenv($key);
+
+        if (!$envVar) {
+            $envVar = $this->getParameter(sprintf('env(%s)', $key));
+        }
+
+        if ($envVar) {
+            $this->envCache[$key] = $this->resolveArg($envVar);
+        }
+
+        return $this->envCache[$key];
     }
 }
