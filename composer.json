@@ -26,6 +26,11 @@
       "Palmtree\\Container\\": "src"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Palmtree\\Container\\Tests\\Service\\": "tests/fixtures/Service"
+    }
+  },
   "provide": {
     "psr/container-implementation": "1.0.0"
   },
