@@ -1,0 +1,9 @@
+parameters:
+  bool: true
+  one: 1
+  foo: "%env(FOO)%"
+  env(FOO): "%bar%"
+  bar: 'zorb'
+
+imports:
+  - { resource: 'parameters2.yml' }

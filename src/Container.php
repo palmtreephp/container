@@ -55,6 +55,18 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param $key
+     * @param $value
+     *
+     * @throws ParameterNotFoundException
+     * @throws ServiceNotFoundException
+     */
+    public function setParameter($key, $value)
+    {
+        $this->parameters[$key] = $this->resolveArg($value);
+    }
+
+    /**
      * @param string $key
      *
      * @return bool

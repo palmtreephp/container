@@ -1,10 +1,3 @@
-parameters:
-  bool: true
-  one: 1
-  foo: "%env(FOO)%"
-  env(FOO): "%bar%"
-  bar: 'zorb'
-
 services:
   bar:
     class: Palmtree\Container\Tests\Service\Bar
@@ -23,3 +16,7 @@ services:
   lazy_load:
     class: Palmtree\Container\Tests\Service\LazyLoad
     lazy: true
+
+imports:
+  - { resource: 'parameters.yml' }
+  - { resource: 'parameters.php' }

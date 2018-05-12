@@ -28,6 +28,7 @@ parameters:
   database_name: 'mydb'
   database_user: 'mydb_user'
   database_password: '%env(DB_PASSWORD)%'
+  env(DB_PASSWORD): 123456 # Default env parameter used if environment variable is not set
 
 imports:
   - { resource: services.yml }

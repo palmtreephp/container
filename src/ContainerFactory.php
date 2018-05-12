@@ -25,19 +25,44 @@ class ContainerFactory
 
         $container = new Container($yaml['services'], $yaml['parameters']);
 
+        // Parse again after the container again to import PHP files
+        static::parseYamlFile($configFile, $container);
+
         return $container;
     }
 
-    protected static function parseYamlFile($file)
+    /**
+     * @param string         $file
+     * @param Container|null $container
+     *
+     * @return mixed
+     */
+    protected static function parseYamlFile($file, $container = null)
     {
         $data = Yaml::parse(file_get_contents($file));
 
-        $data = static::parseYamlImports($data, dirname($file));
+        $data = static::parseImports($data, dirname($file), $container);
 
         return $data;
     }
 
-    protected static function parseYamlImports($data, $dir)
+    /**
+     * @param string    $file
+     * @param Container $container
+     */
+    protected static function parsePhpFile($file, Container $container)
+    {
+        require $file;
+    }
+
+    /**
+     * @param array          $data
+     * @param string         $dir
+     * @param Container|null $container
+     *
+     * @return mixed
+     */
+    protected static function parseImports($data, $dir, $container = null)
     {
         foreach ($data as $key => $value) {
             if (!is_array($value)) {
@@ -68,8 +93,15 @@ class ContainerFactory
                         $reference = &$data[$key];
                     }
 
-                    $reference = array_replace_recursive($reference, static::parseYamlFile($resource));
-                    unset($reference['imports']);
+                    $extension = pathinfo($resource, PATHINFO_EXTENSION);
+
+                    if ($extension === 'yml' || $extension === 'yaml') {
+                        $reference = array_replace_recursive($reference, static::parseYamlFile($resource));
+                        unset($reference['imports'][$importKey]);
+                    } elseif ($extension === 'php' && $container instanceof Container) {
+                        static::parsePhpFile($resource, $container);
+                        unset($reference['imports'][$importKey]);
+                    }
                 }
             }
         }
