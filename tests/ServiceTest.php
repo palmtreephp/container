@@ -41,6 +41,15 @@ class ServiceTest extends TestCase
         $this->assertInstanceOf(Foo::class, $container->get('baz')->getFoo());
     }
 
+
+    /** @expectedException \Palmtree\Container\Exception\ServiceNotFoundException */
+    public function testParameterNotFoundException()
+    {
+        $container = $this->createContainer();
+
+        $container->get('noop');
+    }
+
     /**
      * @return \Palmtree\Container\Container
      */

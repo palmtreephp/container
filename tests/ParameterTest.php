@@ -45,6 +45,14 @@ class ParameterTest extends TestCase
         $this->assertInstanceOf(\DateTime::class, $container->getParameter('time'));
     }
 
+    /** @expectedException \Palmtree\Container\Exception\ParameterNotFoundException */
+    public function testParameterNotFoundException()
+    {
+        $container = $this->createContainer();
+
+        $container->getParameter('noop');
+    }
+
     /**
      * @return \Palmtree\Container\Container
      */
