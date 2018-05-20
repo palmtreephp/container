@@ -2,6 +2,11 @@ services:
   bar:
     class: Palmtree\Container\Tests\Service\Bar
 
+  baz:
+    class: Palmtree\Container\Tests\Service\Baz
+    arguments:
+      - "@foo"
+
   foo:
     class: Palmtree\Container\Tests\Service\Foo
     arguments:

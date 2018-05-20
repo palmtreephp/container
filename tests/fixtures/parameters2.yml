@@ -1,2 +1,3 @@
 parameters:
   argee: bargee
+  baz: "@baz"

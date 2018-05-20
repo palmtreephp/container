@@ -3,6 +3,7 @@
 namespace Palmtree\Container\Tests;
 
 use Palmtree\Container\ContainerFactory;
+use Palmtree\Container\Tests\Service\Foo;
 use PHPUnit\Framework\TestCase;
 
 class ParameterTest extends TestCase
@@ -34,6 +35,14 @@ class ParameterTest extends TestCase
 
         $this->assertEquals('baz', $container->getParameter('foo'));
         putenv('FOO');
+    }
+
+    public function testPhpParameters()
+    {
+        $container = $this->createContainer();
+
+        $this->assertInstanceOf(Foo::class, $container->getParameter('foo_service'));
+        $this->assertInstanceOf(\DateTime::class, $container->getParameter('time'));
     }
 
     /**

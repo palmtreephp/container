@@ -3,6 +3,7 @@
 namespace Palmtree\Container\Tests;
 
 use Palmtree\Container\ContainerFactory;
+use Palmtree\Container\Tests\Service\Foo;
 use Palmtree\Container\Tests\Service\LazyLoad;
 use PHPUnit\Framework\TestCase;
 
@@ -31,6 +32,13 @@ class ServiceTest extends TestCase
         $container = $this->createContainer();
 
         $this->assertTrue($container->get('foo')->getBaz());
+    }
+
+    public function testDependencyDefinedAfterDefinition()
+    {
+        $container = $this->createContainer();
+
+        $this->assertInstanceOf(Foo::class, $container->get('baz')->getFoo());
     }
 
     /**
