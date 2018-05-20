@@ -26,11 +26,18 @@ class Container implements ContainerInterface
 
     public function __construct(array $services = [], array $parameters = [])
     {
+        foreach ($services as $key => $definitionArgs) {
+            $this->add($key, $definitionArgs);
+        }
+
         $this->parameters = $parameters;
         $this->parameters = $this->resolveArgs($this->parameters);
 
-        foreach ($services as $key => $definitionArgs) {
-            $this->add($key, $definitionArgs);
+        // Instantiate non-lazy services
+        foreach ($this->services as $key => $service) {
+            if ($service instanceof Definition && !$service->isLazy()) {
+                $this->get($key);
+            }
         }
     }
 
@@ -104,9 +111,7 @@ class Container implements ContainerInterface
             $service = $this->create($service);
         }
 
-        $this->services[$key] = $service;
-
-        return $this->services[$key];
+        return $this->services[$key] = $service;
     }
 
     /**
@@ -117,15 +122,7 @@ class Container implements ContainerInterface
      */
     protected function add($key, array $definitionArgs)
     {
-        $definition = Definition::fromYaml($definitionArgs);
-
-        $this->services[$key] = $definition;
-
-        if (!$definition->isLazy()) {
-            $this->get($key);
-        }
-
-        return $definition;
+        return $this->services[$key] = Definition::fromYaml($definitionArgs);
     }
 
     /**
@@ -178,16 +175,18 @@ class Container implements ContainerInterface
      */
     protected function resolveArg($arg)
     {
-        if (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
-            $parameter = $matches[1];
+        if (is_string($arg)) {
+            if (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
+                $parameter = $matches[1];
 
-            if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
-                $arg = $this->getEnv($envMatches[1]);
-            } else {
-                $arg = $this->getParameter($parameter);
+                if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
+                    $arg = $this->getEnv($envMatches[1]);
+                } else {
+                    $arg = $this->getParameter($parameter);
+                }
+            } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
+                $arg = $this->get($matches[1]);
             }
-        } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
-            $arg = $this->get($matches[1]);
         }
 
         return $arg;
