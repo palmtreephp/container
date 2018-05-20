@@ -1,14 +1,14 @@
 services:
   bar:
-    class: Palmtree\Container\Tests\Service\Bar
+    class: Palmtree\Container\Tests\Fixtures\Service\Bar
 
   baz:
-    class: Palmtree\Container\Tests\Service\Baz
+    class: Palmtree\Container\Tests\Fixtures\Service\Baz
     arguments:
       - "@foo"
 
   foo:
-    class: Palmtree\Container\Tests\Service\Foo
+    class: Palmtree\Container\Tests\Fixtures\Service\Foo
     arguments:
       - "@bar"
       - 7
@@ -19,7 +19,7 @@ services:
         arguments: [true]
 
   lazy_load:
-    class: Palmtree\Container\Tests\Service\LazyLoad
+    class: Palmtree\Container\Tests\Fixtures\Service\LazyLoad
     lazy: true
 
 imports:

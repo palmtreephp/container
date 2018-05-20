@@ -3,8 +3,8 @@
 namespace Palmtree\Container\Tests;
 
 use Palmtree\Container\ContainerFactory;
-use Palmtree\Container\Tests\Service\Foo;
-use Palmtree\Container\Tests\Service\LazyLoad;
+use Palmtree\Container\Tests\Fixtures\Service\Foo;
+use Palmtree\Container\Tests\Fixtures\Service\LazyLoad;
 use PHPUnit\Framework\TestCase;
 
 class ServiceTest extends TestCase

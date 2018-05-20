@@ -28,7 +28,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Palmtree\\Container\\Tests\\Service\\": "tests/fixtures/Service"
+      "Palmtree\\Container\\Tests\\Fixtures\\": "tests/fixtures"
     }
   },
   "provide": {

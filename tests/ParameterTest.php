@@ -3,7 +3,7 @@
 namespace Palmtree\Container\Tests;
 
 use Palmtree\Container\ContainerFactory;
-use Palmtree\Container\Tests\Service\Foo;
+use Palmtree\Container\Tests\Fixtures\Service\Foo;
 use PHPUnit\Framework\TestCase;
 
 class ParameterTest extends TestCase
