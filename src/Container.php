@@ -195,7 +195,7 @@ class Container implements ContainerInterface
     /**
      * @param string $key
      *
-     * @return string
+     * @return string|bool
      */
     protected function getEnv($key)
     {
@@ -206,12 +206,14 @@ class Container implements ContainerInterface
         $envVar = getenv($key);
 
         if (!$envVar) {
-            $envVar = $this->getParameter(sprintf('env(%s)', $key));
+            try {
+                $envVar = $this->getParameter(sprintf('env(%s)', $key));
+            } catch (ParameterNotFoundException $exception) {
+                // do nothing
+            }
         }
 
-        if ($envVar) {
-            $this->envCache[$key] = $this->resolveArg($envVar);
-        }
+        $this->envCache[$key] = $this->resolveArg($envVar);
 
         return $this->envCache[$key];
     }
