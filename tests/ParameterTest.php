@@ -45,6 +45,13 @@ class ParameterTest extends TestCase
         $this->assertInstanceOf(\DateTime::class, $container->getParameter('time'));
     }
 
+    public function testMultipleParameterString()
+    {
+        $container = $this->createContainer();
+
+        $this->assertEquals('/path/to/some/file', $container->getParameter('multi'));
+    }
+
     /** @expectedException \Palmtree\Container\Exception\ParameterNotFoundException */
     public function testParameterNotFoundException()
     {

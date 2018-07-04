@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 class Container implements ContainerInterface
 {
     /** Regex for parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/^%([^%]+)%$/';
+    const PATTERN_PARAMETER = '/%([^%]+)%/';
     /** Regex for environment variable parameters e.g '%env(MY_ENV_VAR)%' */
     const PATTERN_ENV_PARAMETER = '/^env\(([^\)]+)\)$/';
     /** Regex for services e.g '@myservice' */
@@ -183,16 +183,17 @@ class Container implements ContainerInterface
     protected function resolveArg($arg)
     {
         if (is_string($arg)) {
-            if (preg_match(static::PATTERN_PARAMETER, $arg, $matches)) {
-                $parameter = $matches[1];
-
-                if (preg_match(static::PATTERN_ENV_PARAMETER, $parameter, $envMatches)) {
-                    $arg = $this->getEnv($envMatches[1]);
-                } else {
-                    $arg = $this->getParameter($parameter);
-                }
-            } elseif (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
+            if (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
                 $arg = $this->get($matches[1]);
+            } else {
+                // todo: Optimise PATTERN_PARAMETER regex so PATTERN_ENV_PARAMETER preg_match isn't necessary
+                $arg = preg_replace_callback(static::PATTERN_PARAMETER, function ($matches) {
+                    if (preg_match(static::PATTERN_ENV_PARAMETER, $matches[1], $envMatches)) {
+                        return $this->getEnv($envMatches[1]);
+                    } else {
+                        return $this->getParameter($matches[1]);
+                    }
+                }, $arg);
             }
         }
 
