@@ -32,8 +32,15 @@ class Container implements ContainerInterface
 
         $this->parameters = $parameters;
         $this->parameters = $this->resolveArgs($this->parameters);
+    }
 
-        // Instantiate non-lazy services
+    /**
+     * Instantiates non-lazy services.
+     *
+     * @throws ServiceNotFoundException
+     */
+    public function instantiateServices()
+    {
         foreach ($this->services as $key => $service) {
             if ($service instanceof Definition && !$service->isLazy()) {
                 $this->get($key);

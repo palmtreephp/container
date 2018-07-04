@@ -28,6 +28,8 @@ class ContainerFactory
         // Parse again after the container again to import PHP files
         static::parseYamlFile($configFile, $container);
 
+        $container->instantiateServices();
+
         return $container;
     }
 
