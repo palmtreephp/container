@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 class Container implements ContainerInterface
 {
     /** Regex for parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/%([^%]+)%/';
+    const PATTERN_PARAMETER = '/%%|%([^%\s]+)%/';
     /** Regex for environment variable parameters e.g '%env(MY_ENV_VAR)%' */
     const PATTERN_ENV_PARAMETER = '/^env\(([^\)]+)\)$/';
     /** Regex for services e.g '@myservice' */
@@ -188,7 +188,10 @@ class Container implements ContainerInterface
             } else {
                 // todo: Optimise PATTERN_PARAMETER regex so PATTERN_ENV_PARAMETER preg_match isn't necessary
                 $arg = preg_replace_callback(static::PATTERN_PARAMETER, function ($matches) {
-                    if (preg_match(static::PATTERN_ENV_PARAMETER, $matches[1], $envMatches)) {
+                    // Skip %% to allow escaping percent signs
+                    if (!isset($matches[1])) {
+                        return '%';
+                    } elseif (preg_match(static::PATTERN_ENV_PARAMETER, $matches[1], $envMatches)) {
                         return $this->getEnv($envMatches[1]);
                     } else {
                         return $this->getParameter($matches[1]);

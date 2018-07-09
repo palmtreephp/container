@@ -60,6 +60,13 @@ class ParameterTest extends TestCase
         $container->getParameter('noop');
     }
 
+    public function testEscapedPercentSign()
+    {
+        $container = $this->createContainer();
+
+        $this->assertEquals('%Hello%', $container->getParameter('escaped_percent'));
+    }
+
     /**
      * @return \Palmtree\Container\Container
      */

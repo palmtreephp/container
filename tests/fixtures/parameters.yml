@@ -7,6 +7,7 @@ parameters:
   multi_one: '/path/to'
   multi_two: 'some/file'
   multi: '%multi_one%/%multi_two%'
+  escaped_percent: '%%Hello%%'
 
 imports:
   - { resource: 'parameters2.yml' }
