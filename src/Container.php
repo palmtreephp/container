@@ -141,7 +141,7 @@ class Container implements ContainerInterface
      */
     protected function create(Definition $definition)
     {
-        $class = $definition->getClass();
+        $class = $this->resolveArg($definition->getClass());
         $args  = $this->resolveArgs($definition->getArguments());
 
         $service = new $class(...$args);
