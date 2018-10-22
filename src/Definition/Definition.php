@@ -7,13 +7,15 @@ use Palmtree\Container\Exception\InvalidDefinitionException;
 class Definition
 {
     /** @var string */
-    protected $class;
+    private $class;
     /** @var bool */
-    protected $lazy = false;
+    private $lazy = false;
     /** @var array */
-    protected $arguments = [];
+    private $arguments = [];
     /** @var MethodCall[] */
-    protected $methodCalls = [];
+    private $methodCalls = [];
+    /** @var array */
+    private $factory;
 
     /**
      * @param array $yaml
@@ -24,15 +26,21 @@ class Definition
      */
     public static function fromYaml(array $yaml)
     {
-        if (!isset($yaml['class'])) {
+        if (!isset($yaml['class']) && !isset($yaml['factory'])) {
             throw new InvalidDefinitionException("Missing required 'class' argument. Must be a FQCN.");
         }
 
         $definition = new self();
 
-        $definition
-            ->setClass($yaml['class'])
-            ->setLazy(isset($yaml['lazy']) ? $yaml['lazy'] : false);
+        if (isset($yaml['class'])) {
+            $definition->setClass($yaml['class']);
+        }
+
+        if (isset($yaml['factory'])) {
+            $definition->setFactory($yaml['factory']);
+        }
+
+        $definition->setLazy(isset($yaml['lazy']) ? $yaml['lazy'] : false);
 
         if (isset($yaml['arguments'])) {
             $definition->setArguments($yaml['arguments']);
@@ -58,11 +66,13 @@ class Definition
 
     /**
      * @param string $class
+     *
      * @return Definition
      */
     public function setClass($class)
     {
         $this->class = $class;
+
         return $this;
     }
 
@@ -76,11 +86,13 @@ class Definition
 
     /**
      * @param bool $lazy
+     *
      * @return Definition
      */
     public function setLazy($lazy)
     {
         $this->lazy = (bool)$lazy;
+
         return $this;
     }
 
@@ -100,6 +112,7 @@ class Definition
     public function setArguments(array $arguments)
     {
         $this->arguments = $arguments;
+
         return $this;
     }
 
@@ -125,6 +138,7 @@ class Definition
 
     /**
      * @param MethodCall[] $methodCalls
+     *
      * @return Definition
      */
     public function setMethodCalls(array $methodCalls)
@@ -132,6 +146,30 @@ class Definition
         foreach ($methodCalls as $methodCall) {
             $this->addMethodCall($methodCall);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
+     * @param array $factory
+     *
+     * @return Definition
+     */
+    public function setFactory($factory)
+    {
+        if (is_string($factory)) {
+            $factory = explode(':', $factory, 2);
+        }
+
+        $this->factory = $factory;
 
         return $this;
     }
