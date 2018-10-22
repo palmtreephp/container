@@ -9,10 +9,10 @@ use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
-    /** Regex for parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/%%|%([^%\s]+)%/';
-    /** Regex for environment variable parameters e.g '%env(MY_ENV_VAR)%' */
-    const PATTERN_ENV_PARAMETER = '/^env\(([^\)]+)\)$/';
+    /** Regex for single parameters e.g '%my.parameter%' */
+    const PATTERN_PARAMETER = '/^%([^%\s]+)%$/';
+    /** Regex for multiple parameters in a string */
+    const PATTERN_MULTI_PARAMETER = '/%%|%([^%\s]+)%/';
     /** Regex for services e.g '@myservice' */
     const PATTERN_SERVICE = '/^@(.+)$/';
 
@@ -182,25 +182,53 @@ class Container implements ContainerInterface
      */
     protected function resolveArg($arg)
     {
-        if (is_string($arg)) {
-            if (preg_match(static::PATTERN_SERVICE, $arg, $matches)) {
-                $arg = $this->get($matches[1]);
-            } else {
-                // todo: Optimise PATTERN_PARAMETER regex so PATTERN_ENV_PARAMETER preg_match isn't necessary
-                $arg = preg_replace_callback(static::PATTERN_PARAMETER, function ($matches) {
-                    // Skip %% to allow escaping percent signs
-                    if (!isset($matches[1])) {
-                        return '%';
-                    } elseif (preg_match(static::PATTERN_ENV_PARAMETER, $matches[1], $envMatches)) {
-                        return $this->getEnv($envMatches[1]);
-                    } else {
-                        return $this->getParameter($matches[1]);
-                    }
-                }, $arg);
-            }
+        if (!is_string($arg)) {
+            return $arg;
         }
 
+        if (preg_match(self::PATTERN_SERVICE, $arg, $matches)) {
+            return $this->get($matches[1]);
+        }
+
+        // Resolve a single parameter value e.g %my_param%
+        // Used for non-string values (boolean, integer etc)
+        if (preg_match(self::PATTERN_PARAMETER, $arg, $matches)) {
+            $envKey = $this->getEnvParameterKey($matches[1]);
+
+            if (!is_null($envKey)) {
+                return $this->getEnv($envKey);
+            }
+
+            return $this->getParameter($matches[1]);
+        }
+
+        // Resolve multiple parameters in a string e.g /%parent_dir%/somewhere/%child_dir%
+        return preg_replace_callback(self::PATTERN_MULTI_PARAMETER, function ($matches) {
+            // Skip %% to allow escaping percent signs
+            if (!isset($matches[1])) {
+                return '%';
+            } elseif ($envKey = $this->getEnvParameterKey($matches[1])) {
+                return $this->getEnv($envKey);
+            } else {
+                return $this->getParameter($matches[1]);
+            }
+        }, $arg);
+
         return $arg;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return null|string
+     */
+    protected function getEnvParameterKey($value)
+    {
+        if (strpos($value, 'env(') === 0 && substr($value, -1) === ')' && $value !== 'env()') {
+            return substr($value, 4, -1);
+        }
+
+        return null;
     }
 
     /**
