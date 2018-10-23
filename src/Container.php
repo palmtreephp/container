@@ -220,8 +220,6 @@ class Container implements ContainerInterface
                 return $this->getParameter($matches[1]);
             }
         }, $arg);
-
-        return $arg;
     }
 
     /**
@@ -253,13 +251,13 @@ class Container implements ContainerInterface
 
         if (!$envVar) {
             try {
-                $envVar = $this->getParameter(sprintf('env(%s)', $key));
+                $envVar = $this->resolveArg($this->getParameter(sprintf('env(%s)', $key)));
             } catch (ParameterNotFoundException $exception) {
                 // do nothing
             }
         }
 
-        $this->envCache[$key] = $this->resolveArg($envVar);
+        $this->envCache[$key] = $envVar;
 
         return $this->envCache[$key];
     }
