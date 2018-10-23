@@ -67,6 +67,13 @@ class ParameterTest extends TestCase
         $this->assertEquals('%Hello%', $container->getParameter('escaped_percent'));
     }
 
+    public function testCompoundParameter()
+    {
+        $container = $this->createContainer();
+
+        $this->assertEquals([1,2,3], $container->getParameter('compound'));
+    }
+
     /**
      * @return \Palmtree\Container\Container
      */

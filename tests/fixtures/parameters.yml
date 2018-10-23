@@ -1,13 +1,18 @@
 parameters:
-  bool: true
-  one: 1
-  foo: "%env(FOO)%"
-  env(FOO): "%bar%"
-  bar: 'zorb'
-  multi_one: '/path/to'
-  multi_two: 'some/file'
-  multi: '%multi_one%/%multi_two%'
-  escaped_percent: '%%Hello%%'
+    bool: true
+    one: 1
+    foo: "%env(FOO)%"
+    env(FOO): "%bar%"
+    bar: 'zorb'
+    multi_one: '/path/to'
+    multi_two: 'some/file'
+    multi: '%multi_one%/%multi_two%'
+    escaped_percent: '%%Hello%%'
+    compound: '%some_ints%'
+    some_ints:
+        - 1
+        - 2
+        - 3
 
 imports:
-  - { resource: 'parameters2.yml' }
+    - { resource: 'parameters2.yml' }
