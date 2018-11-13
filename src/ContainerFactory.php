@@ -85,7 +85,8 @@ class ContainerFactory
                 foreach ($imports as $importKey => $import) {
                     $resource = $import['resource'];
 
-                    if (strpos($resource, '/') === false) {
+                    // Prefix the directory if resource is not an absolute path
+                    if ($resource[0] !== DIRECTORY_SEPARATOR && !preg_match('~\A[A-Z]:(?![^/\\\\])~i', $resource)) {
                         $resource = sprintf('%s/%s', $dir, $resource);
                     }
 
