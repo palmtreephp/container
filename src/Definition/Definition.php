@@ -159,7 +159,7 @@ class Definition
     }
 
     /**
-     * @param array $factory
+     * @param array|string $factory
      *
      * @return Definition
      */
