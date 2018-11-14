@@ -87,7 +87,7 @@ class ContainerFactory
 
                     // Prefix the directory if resource is not an absolute path
                     if ($resource[0] !== DIRECTORY_SEPARATOR && !preg_match('~\A[A-Z]:(?![^/\\\\])~i', $resource)) {
-                        $resource = sprintf('%s/%s', $dir, $resource);
+                        $resource = "$dir/$resource";
                     }
 
                     if ($root) {

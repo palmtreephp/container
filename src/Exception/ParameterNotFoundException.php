@@ -6,6 +6,6 @@ class ParameterNotFoundException extends NotFoundException
 {
     public function __construct($key, $code = 0, \Throwable $previous = null)
     {
-        $this->message = sprintf("Parameter '%s' does not exist.", $key);
+        $this->message = "Parameter '$key' does not exist.";
     }
 }

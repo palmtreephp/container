@@ -251,7 +251,7 @@ class Container implements ContainerInterface
 
         if (!$envVar) {
             try {
-                $envVar = $this->resolveArg($this->getParameter(sprintf('env(%s)', $key)));
+                $envVar = $this->resolveArg($this->getParameter("env($key)"));
             } catch (ParameterNotFoundException $exception) {
                 // do nothing
             }
