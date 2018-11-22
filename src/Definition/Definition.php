@@ -10,6 +10,8 @@ class Definition
     private $class;
     /** @var bool */
     private $lazy = false;
+    /** @var bool */
+    private $public = true;
     /** @var array */
     private $arguments = [];
     /** @var MethodCall[] */
@@ -41,6 +43,7 @@ class Definition
         }
 
         $definition->setLazy(isset($yaml['lazy']) ? $yaml['lazy'] : false);
+        $definition->setPublic(isset($yaml['public']) ? $yaml['public'] : true);
 
         if (isset($yaml['arguments'])) {
             $definition->setArguments($yaml['arguments']);
@@ -94,6 +97,22 @@ class Definition
         $this->lazy = (bool)$lazy;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPublic()
+    {
+        return $this->public;
+    }
+
+    /**
+     * @param bool $public
+     */
+    public function setPublic($public)
+    {
+        $this->public = $public;
     }
 
     /**

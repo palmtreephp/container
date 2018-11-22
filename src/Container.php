@@ -16,7 +16,9 @@ class Container implements ContainerInterface
     /** Regex for services e.g '@myservice' */
     const PATTERN_SERVICE = '/^@(.+)$/';
 
-    /** @var Definition[]|mixed[] */
+    /** @var Definition[] */
+    protected $definitions = [];
+    /** @var mixed[] */
     protected $services = [];
     /** @var array */
     protected $parameters = [];
@@ -24,10 +26,10 @@ class Container implements ContainerInterface
     /** @var array */
     protected $envCache = [];
 
-    public function __construct(array $services = [], array $parameters = [])
+    public function __construct(array $definitions = [], array $parameters = [])
     {
-        foreach ($services as $key => $definitionArgs) {
-            $this->add($key, $definitionArgs);
+        foreach ($definitions as $key => $definitionArgs) {
+            $this->definitions[$key] = Definition::fromYaml($definitionArgs);
         }
 
         $this->parameters = $parameters;
@@ -36,16 +38,83 @@ class Container implements ContainerInterface
 
     /**
      * Instantiates non-lazy services.
-     *
-     * @throws ServiceNotFoundException
      */
     public function instantiateServices()
     {
-        foreach ($this->services as $key => $service) {
-            if ($service instanceof Definition && !$service->isLazy()) {
-                $this->get($key);
+        foreach ($this->definitions as $key => $definition) {
+            if (!$definition->isLazy()) {
+                $this->services[$key] = $this->create($definition);
             }
         }
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function has($key)
+    {
+        return isset($this->services[$key]) || array_key_exists($key, $this->services);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function hasDefinition($key)
+    {
+        return isset($this->definitions[$key]) || array_key_exists($key, $this->services);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     * @throws ServiceNotFoundException
+     */
+    public function get($key)
+    {
+        if (!$this->has($key)) {
+            if (!$this->hasDefinition($key)) {
+                throw new ServiceNotFoundException($key);
+            }
+
+            $this->services[$key] = $this->create($this->definitions[$key]);
+        }
+
+        return $this->services[$key];
+    }
+
+    /**
+     * Creates a service as defined by the Definition object.
+     *
+     * @param Definition $definition
+     *
+     * @return mixed
+     */
+    protected function create(Definition $definition)
+    {
+        $args = $this->resolveArgs($definition->getArguments());
+
+        if ($definition->getFactory()) {
+            list($class, $method) = $definition->getFactory();
+            $class  = $this->resolveArg($class);
+            $method = $this->resolveArg($method);
+            $service = $class::$method(...$args);
+        } else {
+            $class = $this->resolveArg($definition->getClass());
+            $service = new $class(...$args);
+        }
+
+        foreach ($definition->getMethodCalls() as $methodCall) {
+            $methodName = $methodCall->getName();
+            $methodArgs = $this->resolveArgs($methodCall->getArguments());
+            $service->$methodName(...$methodArgs);
+        }
+
+        return $service;
     }
 
     /**
@@ -88,78 +157,6 @@ class Container implements ContainerInterface
     public function hasParameter($key)
     {
         return isset($this->parameters[$key]) || array_key_exists($key, $this->parameters);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function has($key)
-    {
-        return isset($this->services[$key]) || array_key_exists($key, $this->services);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return mixed
-     * @throws ServiceNotFoundException
-     */
-    public function get($key)
-    {
-        if (!$this->has($key)) {
-            throw new ServiceNotFoundException($key);
-        }
-
-        $service = $this->services[$key];
-
-        if ($service instanceof Definition) {
-            $service = $this->create($service);
-        }
-
-        return $this->services[$key] = $service;
-    }
-
-    /**
-     * @param string $key
-     * @param array  $definitionArgs
-     *
-     * @return Definition
-     */
-    protected function add($key, array $definitionArgs)
-    {
-        return $this->services[$key] = Definition::fromYaml($definitionArgs);
-    }
-
-    /**
-     * Creates a service as defined by the Definition object.
-     *
-     * @param Definition $definition
-     *
-     * @return mixed
-     */
-    protected function create(Definition $definition)
-    {
-        $args = $this->resolveArgs($definition->getArguments());
-
-        if ($definition->getFactory()) {
-            list($class, $method) = $definition->getFactory();
-            $class  = $this->resolveArg($class);
-            $method = $this->resolveArg($method);
-            $service = $class::$method(...$args);
-        } else {
-            $class = $this->resolveArg($definition->getClass());
-            $service = new $class(...$args);
-        }
-
-        foreach ($definition->getMethodCalls() as $methodCall) {
-            $methodName = $methodCall->getName();
-            $methodArgs = $this->resolveArgs($methodCall->getArguments());
-            $service->$methodName(...$methodArgs);
-        }
-
-        return $service;
     }
 
     /**
