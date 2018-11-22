@@ -22,6 +22,15 @@ services:
     class: Palmtree\Container\Tests\Fixtures\Service\LazyLoad
     lazy: true
 
+  private_service:
+    class: Palmtree\Container\Tests\Fixtures\Service\PrivateService
+    public: false
+
+  private_service_consumer:
+    class: Palmtree\Container\Tests\Fixtures\Service\PrivateServiceConsumer
+    arguments:
+      - "@private_service"
+
 imports:
   - { resource: 'parameters.yml' }
   - { resource: 'parameters.php' }

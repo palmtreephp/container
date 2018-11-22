@@ -5,6 +5,7 @@ namespace Palmtree\Container\Tests;
 use Palmtree\Container\ContainerFactory;
 use Palmtree\Container\Tests\Fixtures\Service\Foo;
 use Palmtree\Container\Tests\Fixtures\Service\LazyLoad;
+use Palmtree\Container\Tests\Fixtures\Service\PrivateService;
 use PHPUnit\Framework\TestCase;
 
 class ServiceTest extends TestCase
@@ -41,6 +42,22 @@ class ServiceTest extends TestCase
         $this->assertInstanceOf(Foo::class, $container->get('baz')->getFoo());
     }
 
+    public function testPrivateService()
+    {
+        $container = $this->createContainer();
+
+        $consumer = $container->get('private_service_consumer');
+
+        $this->assertInstanceOf(PrivateService::class, $consumer->getPrivateService());
+    }
+
+    /** @expectedException \Palmtree\Container\Exception\ServiceNotPublicException */
+    public function testServiceNotPublicException()
+    {
+        $container = $this->createContainer();
+
+        $container->get('private_service');
+    }
 
     /** @expectedException \Palmtree\Container\Exception\ServiceNotFoundException */
     public function testParameterNotFoundException()

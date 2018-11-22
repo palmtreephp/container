@@ -5,6 +5,7 @@ namespace Palmtree\Container;
 use Palmtree\Container\Definition\Definition;
 use Palmtree\Container\Exception\ParameterNotFoundException;
 use Palmtree\Container\Exception\ServiceNotFoundException;
+use Palmtree\Container\Exception\ServiceNotPublicException;
 use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
@@ -73,6 +74,7 @@ class Container implements ContainerInterface
      *
      * @return mixed
      * @throws ServiceNotFoundException
+     * @throws ServiceNotPublicException
      */
     public function get($key)
     {
@@ -84,37 +86,28 @@ class Container implements ContainerInterface
             $this->services[$key] = $this->create($this->definitions[$key]);
         }
 
+        if (!$this->definitions[$key]->isPublic()) {
+            throw new ServiceNotPublicException($key);
+        }
+
         return $this->services[$key];
     }
 
     /**
-     * Creates a service as defined by the Definition object.
-     *
-     * @param Definition $definition
+     * @param string $key
      *
      * @return mixed
+     * @throws ServiceNotFoundException
      */
-    private function create(Definition $definition)
+    private function inject($key)
     {
-        $args = $this->resolveArgs($definition->getArguments());
-
-        if ($definition->getFactory()) {
-            list($class, $method) = $definition->getFactory();
-            $class  = $this->resolveArg($class);
-            $method = $this->resolveArg($method);
-            $service = $class::$method(...$args);
-        } else {
-            $class = $this->resolveArg($definition->getClass());
-            $service = new $class(...$args);
+        try {
+            // Ensure the service has been created
+            $this->get($key);
+        } catch (ServiceNotPublicException $e) {
         }
 
-        foreach ($definition->getMethodCalls() as $methodCall) {
-            $methodName = $methodCall->getName();
-            $methodArgs = $this->resolveArgs($methodCall->getArguments());
-            $service->$methodName(...$methodArgs);
-        }
-
-        return $service;
+        return $this->services[$key];
     }
 
     /**
@@ -160,6 +153,36 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Creates a service as defined by the Definition object.
+     *
+     * @param Definition $definition
+     *
+     * @return mixed
+     */
+    private function create(Definition $definition)
+    {
+        $args = $this->resolveArgs($definition->getArguments());
+
+        if ($definition->getFactory()) {
+            list($class, $method) = $definition->getFactory();
+            $class  = $this->resolveArg($class);
+            $method = $this->resolveArg($method);
+            $service = $class::$method(...$args);
+        } else {
+            $class = $this->resolveArg($definition->getClass());
+            $service = new $class(...$args);
+        }
+
+        foreach ($definition->getMethodCalls() as $methodCall) {
+            $methodName = $methodCall->getName();
+            $methodArgs = $this->resolveArgs($methodCall->getArguments());
+            $service->$methodName(...$methodArgs);
+        }
+
+        return $service;
+    }
+
+    /**
      * @param array $args
      *
      * @return array
@@ -191,7 +214,7 @@ class Container implements ContainerInterface
         }
 
         if (preg_match(self::PATTERN_SERVICE, $arg, $matches)) {
-            return $this->get($matches[1]);
+            return $this->inject($matches[1]);
         }
 
         // Resolve a single parameter value e.g %my_param%
