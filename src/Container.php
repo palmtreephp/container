@@ -102,9 +102,9 @@ class Container implements ContainerInterface
     private function inject($key)
     {
         try {
-            // Ensure the service has been created
             $this->get($key);
         } catch (ServiceNotPublicException $e) {
+            // Ensures the service is created. Private services are allowed to be injected.
         }
 
         return $this->services[$key];
