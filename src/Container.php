@@ -17,14 +17,14 @@ class Container implements ContainerInterface
     const PATTERN_SERVICE = '/^@(.+)$/';
 
     /** @var Definition[] */
-    protected $definitions = [];
+    private $definitions = [];
     /** @var mixed[] */
-    protected $services = [];
+    private $services = [];
     /** @var array */
-    protected $parameters = [];
+    private $parameters = [];
 
     /** @var array */
-    protected $envCache = [];
+    private $envCache = [];
 
     public function __construct(array $definitions = [], array $parameters = [])
     {
@@ -94,7 +94,7 @@ class Container implements ContainerInterface
      *
      * @return mixed
      */
-    protected function create(Definition $definition)
+    private function create(Definition $definition)
     {
         $args = $this->resolveArgs($definition->getArguments());
 
@@ -164,7 +164,7 @@ class Container implements ContainerInterface
      *
      * @return array
      */
-    protected function resolveArgs(array $args)
+    private function resolveArgs(array $args)
     {
         foreach ($args as $key => &$arg) {
             if (is_array($arg)) {
@@ -184,7 +184,7 @@ class Container implements ContainerInterface
      * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
      */
-    protected function resolveArg($arg)
+    private function resolveArg($arg)
     {
         if (!is_string($arg)) {
             return $arg;
@@ -224,7 +224,7 @@ class Container implements ContainerInterface
      *
      * @return null|string
      */
-    protected function getEnvParameterKey($value)
+    private function getEnvParameterKey($value)
     {
         if (strpos($value, 'env(') === 0 && substr($value, -1) === ')' && $value !== 'env()') {
             return substr($value, 4, -1);
@@ -238,7 +238,7 @@ class Container implements ContainerInterface
      *
      * @return string|bool
      */
-    protected function getEnv($key)
+    private function getEnv($key)
     {
         if (isset($this->envCache[$key]) || array_key_exists($key, $this->envCache)) {
             return $this->envCache[$key];
