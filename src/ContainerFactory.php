@@ -66,45 +66,29 @@ class ContainerFactory
      */
     protected static function parseImports($data, $dir, $container = null)
     {
-        foreach ($data as $key => $value) {
-            if (!is_array($value)) {
+        foreach ($data as $key => $imports) {
+            if ($key !== 'imports' || !$imports || !is_array($imports)) {
                 continue;
             }
 
-            $imports = null;
-            $root    = false;
+            foreach ($imports as $importKey => $import) {
+                $resource = $import['resource'];
 
-            if ($key === 'imports') {
-                $imports = $value;
-                $root    = true;
-            } elseif (isset($value['imports'])) {
-                $imports = $value['imports'];
-            }
+                // Prefix the directory if resource is not an absolute path
+                if ($resource[0] !== DIRECTORY_SEPARATOR && !preg_match('~\A[A-Z]:(?![^/\\\\])~i', $resource)) {
+                    $resource = "$dir/$resource";
+                }
 
-            if ($imports) {
-                foreach ($imports as $importKey => $import) {
-                    $resource = $import['resource'];
+                $reference = &$data;
 
-                    // Prefix the directory if resource is not an absolute path
-                    if ($resource[0] !== DIRECTORY_SEPARATOR && !preg_match('~\A[A-Z]:(?![^/\\\\])~i', $resource)) {
-                        $resource = "$dir/$resource";
-                    }
+                $extension = pathinfo($resource, PATHINFO_EXTENSION);
 
-                    if ($root) {
-                        $reference = &$data;
-                    } else {
-                        $reference = &$data[$key];
-                    }
-
-                    $extension = pathinfo($resource, PATHINFO_EXTENSION);
-
-                    if ($extension === 'yml' || $extension === 'yaml') {
-                        $reference = array_replace_recursive($reference, static::parseYamlFile($resource));
-                        unset($reference['imports'][$importKey]);
-                    } elseif ($extension === 'php' && $container instanceof Container) {
-                        static::parsePhpFile($resource, $container);
-                        unset($reference['imports'][$importKey]);
-                    }
+                if ($extension === 'yml' || $extension === 'yaml') {
+                    $reference = array_replace_recursive($reference, static::parseYamlFile($resource));
+                    unset($reference['imports'][$importKey]);
+                } elseif ($extension === 'php' && $container instanceof Container) {
+                    static::parsePhpFile($resource, $container);
+                    unset($reference['imports'][$importKey]);
                 }
             }
         }
