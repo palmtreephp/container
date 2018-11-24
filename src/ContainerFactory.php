@@ -39,7 +39,7 @@ class ContainerFactory
      *
      * @return mixed
      */
-    protected static function parseYamlFile($file, $container = null)
+    private static function parseYamlFile($file, $container = null)
     {
         $data = Yaml::parse(file_get_contents($file));
 
@@ -52,7 +52,7 @@ class ContainerFactory
      * @param string    $file
      * @param Container $container
      */
-    protected static function parsePhpFile($file, Container $container)
+    private static function parsePhpFile($file, Container $container)
     {
         require $file;
     }
@@ -64,7 +64,7 @@ class ContainerFactory
      *
      * @return mixed
      */
-    protected static function parseImports($data, $dir, $container = null)
+    private static function parseImports($data, $dir, $container = null)
     {
         foreach ($data as $key => $imports) {
             if ($key !== 'imports' || !$imports || !is_array($imports)) {
