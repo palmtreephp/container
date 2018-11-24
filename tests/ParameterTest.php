@@ -60,6 +60,8 @@ class ParameterTest extends TestCase
         $container = $this->createContainer();
 
         $this->assertEquals('/path/to/some/file', $container->getParameter('multi'));
+
+        $this->assertEquals('/path/to/zorb', $container->getParameter('multi_env'));
     }
 
     /** @expectedException \Palmtree\Container\Exception\ParameterNotFoundException */

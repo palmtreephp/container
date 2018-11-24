@@ -8,6 +8,7 @@ parameters:
     multi_one: '/path/to'
     multi_two: 'some/file'
     multi: '%multi_one%/%multi_two%'
+    multi_env: '%multi_one%/%env(FOO)%'
     escaped_percent: '%%Hello%%'
     compound: '%some_ints%'
     some_ints:
