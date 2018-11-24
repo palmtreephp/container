@@ -66,6 +66,10 @@ class ContainerFactory
      */
     private static function parseImports($data, $dir, $container = null)
     {
+        if (!$data) {
+            return $data;
+        }
+
         foreach ($data as $key => $imports) {
             if ($key !== 'imports' || !$imports || !is_array($imports)) {
                 continue;

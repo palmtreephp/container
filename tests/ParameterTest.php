@@ -64,6 +64,15 @@ class ParameterTest extends TestCase
         $this->assertEquals('/path/to/zorb', $container->getParameter('multi_env'));
     }
 
+
+    public function testMissingServicesKey()
+    {
+        $container = ContainerFactory::create(__DIR__ . '/fixtures/no_services.yml');
+
+        $this->assertEquals('bar', $container->getParameter('foo'));
+    }
+
+
     /** @expectedException \Palmtree\Container\Exception\ParameterNotFoundException */
     public function testParameterNotFoundException()
     {

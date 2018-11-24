@@ -2,7 +2,9 @@
 
 namespace Palmtree\Container\Tests;
 
+use Palmtree\Container\Container;
 use Palmtree\Container\ContainerFactory;
+use Palmtree\Container\Tests\Fixtures\Service\Bar;
 use Palmtree\Container\Tests\Fixtures\Service\Foo;
 use Palmtree\Container\Tests\Fixtures\Service\LazyLoad;
 use Palmtree\Container\Tests\Fixtures\Service\PrivateService;
@@ -74,6 +76,20 @@ class ServiceTest extends TestCase
         $container = $this->createContainer();
 
         $container->get('noop');
+    }
+
+    public function testMissingParametersKey()
+    {
+        $container = ContainerFactory::create(__DIR__ . '/fixtures/no_parameters.yml');
+
+        $this->assertInstanceOf(Bar::class, $container->get('bar'));
+    }
+
+    public function testEmptyConfig()
+    {
+        $container = ContainerFactory::create(__DIR__ . '/fixtures/empty_config.yml');
+
+        $this->assertInstanceOf(Container::class, $container);
     }
 
     /**
