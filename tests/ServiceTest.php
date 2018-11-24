@@ -51,6 +51,15 @@ class ServiceTest extends TestCase
         $this->assertInstanceOf(PrivateService::class, $consumer->getPrivateService());
     }
 
+    public function testFactory()
+    {
+        $container = $this->createContainer();
+
+        $foo = $container->get('foo_from_factory');
+
+        $this->assertInstanceOf(Foo::class, $foo);
+    }
+
     /** @expectedException \Palmtree\Container\Exception\ServiceNotPublicException */
     public function testServiceNotPublicException()
     {

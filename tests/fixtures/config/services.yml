@@ -12,3 +12,8 @@ services:
         class: Palmtree\Container\Tests\Fixtures\Service\PrivateServiceConsumer
         arguments:
             - "@private_service"
+
+    foo_from_factory:
+        factory: 'Palmtree\Container\Tests\Fixtures\Service\FooFactory:createFoo'
+        arguments:
+            - "@bar"
