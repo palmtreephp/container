@@ -2,6 +2,7 @@ parameters:
     bool: true
     one: 1
     foo: "%env(FOO)%"
+    foo2_env_cache: "%env(FOO)%"
     env(FOO): "%bar%"
     bar: 'zorb'
     multi_one: '/path/to'

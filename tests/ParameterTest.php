@@ -34,6 +34,7 @@ class ParameterTest extends TestCase
         $container = $this->createContainer();
 
         $this->assertEquals('baz', $container->getParameter('foo'));
+
         putenv('FOO');
     }
 
