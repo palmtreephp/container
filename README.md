@@ -86,7 +86,7 @@ services:
 
 ### Private Services
 
-Services can be defined as public, meaning they can only be used via dependency
+Services can be defined as private, meaning they can only be used via dependency
 injection and cannot be retrieved from the container directly:
 
 ```yaml
