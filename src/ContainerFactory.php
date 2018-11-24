@@ -66,7 +66,7 @@ class ContainerFactory
      */
     private static function parseImports($data, $dir, $container = null)
     {
-        if (!$data) {
+        if (empty($data)) {
             return $data;
         }
 
