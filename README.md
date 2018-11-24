@@ -70,6 +70,56 @@ $container->get('my_service')->myMethod();
 $container->getParameter('db_username');
 ```
 
+## Advanced Usage
+
+### Factories
+
+Services can be created by calling static factory methods. Arguments are passed
+to the factory method.
+```yaml
+# services.yml
+services:
+  my_service:
+    factory: 'MyNamespace\MyFactory:createService'
+    arguments: [argForCreateService]
+```
+
+### Private Services
+
+Services can be defined as public, meaning they can only be used via dependency
+injection and cannot be retrieved from the container directly:
+
+```yaml
+# services.yml
+services:
+  my_service:
+    class: MyNamespace\MyService
+    public: false
+    
+  my_consumer:
+    class: MyNamespace\MyConsumer
+    arguments:
+        - "@my_service"
+```
+
+The following will throw a ServiceNotPublicException:
+```php
+<?php
+$container->get('my_service');
+```
+
+Whilst the following will work:
+
+```php
+<?php
+namespace MyNamespace;
+
+class MyConsumer {
+    public function __construct(MyService $myService) {
+    }
+}
+```
+
 ## Prior Art
 Inspired by Symfony's [DependencyInjection](https://symfony.com/doc/current/components/dependency_injection.html) component.
 
