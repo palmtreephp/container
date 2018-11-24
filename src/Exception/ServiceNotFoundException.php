@@ -2,7 +2,9 @@
 
 namespace Palmtree\Container\Exception;
 
-class ServiceNotFoundException extends NotFoundException
+use Psr\Container\NotFoundExceptionInterface;
+
+class ServiceNotFoundException extends \Exception implements NotFoundExceptionInterface
 {
     public function __construct($key, $code = 0, \Throwable $previous = null)
     {

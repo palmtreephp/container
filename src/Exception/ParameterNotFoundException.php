@@ -2,7 +2,9 @@
 
 namespace Palmtree\Container\Exception;
 
-class ParameterNotFoundException extends NotFoundException
+use Psr\Container\NotFoundExceptionInterface;
+
+class ParameterNotFoundException extends \Exception implements NotFoundExceptionInterface
 {
     public function __construct($key, $code = 0, \Throwable $previous = null)
     {
