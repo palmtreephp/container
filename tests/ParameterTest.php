@@ -38,6 +38,15 @@ class ParameterTest extends TestCase
         putenv('FOO');
     }
 
+    public function testDefaultParameter()
+    {
+        $container = $this->createContainer();
+
+        $obj = new \stdClass();
+
+        $this->assertSame($obj, $container->getParameter('noop', $obj));
+    }
+
     public function testPhpParameters()
     {
         $container = $this->createContainer();
