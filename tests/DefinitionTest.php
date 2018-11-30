@@ -5,7 +5,6 @@ namespace Palmtree\Container\Tests;
 use Palmtree\Container\Container;
 use Palmtree\Container\Definition\Definition;
 use Palmtree\Container\Definition\MethodCall;
-use Palmtree\Container\Tests\Fixtures\Service\Bar;
 use Palmtree\Container\Tests\Fixtures\Service\PhpDefinedService;
 use PHPUnit\Framework\TestCase;
 
