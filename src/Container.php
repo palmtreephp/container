@@ -14,8 +14,6 @@ class Container implements ContainerInterface
     const PATTERN_PARAMETER = '/^%([^%\s]+)%$/';
     /** Regex for multiple parameters in a string */
     const PATTERN_MULTI_PARAMETER = '/%%|%([^%\s]+)%/';
-    /** Regex for services e.g '@myservice' */
-    const PATTERN_SERVICE = '/^@(.+)$/';
 
     /** @var Definition[] */
     private $definitions = [];
@@ -163,13 +161,13 @@ class Container implements ContainerInterface
     {
         $args = $this->resolveArgs($definition->getArguments());
 
-        if ($definition->getFactory()) {
-            list($class, $method) = $definition->getFactory();
-            $class  = $this->resolveArg($class);
-            $method = $this->resolveArg($method);
+        if ($factory = $definition->getFactory()) {
+            list($class, $method) = $factory;
+            $class   = $this->resolveArg($class);
+            $method  = $this->resolveArg($method);
             $service = $class::$method(...$args);
         } else {
-            $class = $this->resolveArg($definition->getClass());
+            $class   = $this->resolveArg($definition->getClass());
             $service = new $class(...$args);
         }
 
@@ -213,8 +211,8 @@ class Container implements ContainerInterface
             return $arg;
         }
 
-        if (preg_match(self::PATTERN_SERVICE, $arg, $matches)) {
-            return $this->inject($matches[1]);
+        if (strrpos($arg, '@') === 0) {
+            return $this->inject(substr($arg, 1));
         }
 
         // Resolve a single parameter value e.g %my_param%
@@ -234,11 +232,13 @@ class Container implements ContainerInterface
             // Skip %% to allow escaping percent signs
             if (!isset($matches[1])) {
                 return '%';
-            } elseif ($envKey = $this->getEnvParameterKey($matches[1])) {
-                return $this->getEnv($envKey);
-            } else {
-                return $this->getParameter($matches[1]);
             }
+
+            if ($envKey = $this->getEnvParameterKey($matches[1])) {
+                return $this->getEnv($envKey);
+            }
+
+            return $this->getParameter($matches[1]);
         }, $arg);
     }
 
