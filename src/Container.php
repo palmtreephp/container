@@ -54,7 +54,7 @@ class Container implements ContainerInterface
      */
     public function has($key)
     {
-        return isset($this->services[$key]) || array_key_exists($key, $this->services);
+        return isset($this->services[$key]);
     }
 
     /**
@@ -64,7 +64,7 @@ class Container implements ContainerInterface
      */
     public function hasDefinition($key)
     {
-        return isset($this->definitions[$key]) || array_key_exists($key, $this->services);
+        return isset($this->definitions[$key]);
     }
 
     /**
@@ -129,8 +129,8 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed  $value
      *
      * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
