@@ -28,7 +28,7 @@ class Container implements ContainerInterface
     public function __construct(array $definitions = [], array $parameters = [])
     {
         foreach ($definitions as $key => $definitionArgs) {
-            $this->definitions[$key] = Definition::fromYaml($definitionArgs);
+            $this->addDefinition($key, Definition::fromYaml($definitionArgs));
         }
 
         $this->parameters = $parameters;
@@ -48,6 +48,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Returns whether a service with the given key exists within the container.
+     *
      * @param string $key
      *
      * @return bool
@@ -58,16 +60,8 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string $key
+     * Returns a service object with the given key.
      *
-     * @return bool
-     */
-    public function hasDefinition($key)
-    {
-        return isset($this->definitions[$key]);
-    }
-
-    /**
      * @param string $key
      *
      * @return mixed
@@ -92,23 +86,29 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Returns whether a definition with the given key exists within the container.
+     *
      * @param string $key
      *
-     * @return mixed
-     * @throws ServiceNotFoundException
+     * @return bool
      */
-    private function inject($key)
+    public function hasDefinition($key)
     {
-        try {
-            $this->get($key);
-        } catch (ServiceNotPublicException $e) {
-            // Ensures the service is created. Private services are allowed to be injected.
-        }
-
-        return $this->services[$key];
+        return isset($this->definitions[$key]);
     }
 
     /**
+     * @param string     $key
+     * @param Definition $definition
+     */
+    public function addDefinition($key, Definition $definition)
+    {
+        $this->definitions[$key] = $definition;
+    }
+
+    /**
+     * Returns a parameter with the given key or a default value if given.
+     *
      * @param string $key
      * @param mixed  $default
      *
@@ -129,6 +129,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Sets a parameter within the container.
+     *
      * @param string $key
      * @param mixed  $value
      *
@@ -141,6 +143,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Returns whether a parameter with the given key exists within the container.
+     *
      * @param string $key
      *
      * @return bool
@@ -148,6 +152,23 @@ class Container implements ContainerInterface
     public function hasParameter($key)
     {
         return isset($this->parameters[$key]) || array_key_exists($key, $this->parameters);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     * @throws ServiceNotFoundException
+     */
+    private function inject($key)
+    {
+        try {
+            $this->get($key);
+        } catch (ServiceNotPublicException $e) {
+            // Ensures the service is created. Private services are allowed to be injected.
+        }
+
+        return $this->services[$key];
     }
 
     /**
@@ -199,9 +220,9 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param $arg
+     * @param string $arg
      *
-     * @return mixed|string
+     * @return mixed
      * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
      */
