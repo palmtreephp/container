@@ -220,7 +220,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string $arg
+     * @param mixed $arg
      *
      * @return mixed
      * @throws ParameterNotFoundException
