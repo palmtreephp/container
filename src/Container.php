@@ -214,7 +214,6 @@ class Container implements ContainerInterface
      * @param mixed $arg
      *
      * @return mixed
-     * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
      */
     private function resolveArg($arg)
@@ -227,6 +226,17 @@ class Container implements ContainerInterface
             return $this->inject(substr($arg, 1));
         }
 
+        return $this->resolveParameter($arg);
+    }
+
+    /**
+     * @param string $arg
+     *
+     * @return mixed
+     * @throws ParameterNotFoundException
+     */
+    private function resolveParameter($arg)
+    {
         // Resolve a single parameter value e.g %my_param%
         // Used for non-string values (boolean, integer etc)
         if (preg_match(self::PATTERN_PARAMETER, $arg, $matches)) {
