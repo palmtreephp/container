@@ -1,13 +1,13 @@
-# Palmtree Container
+# :palm_tree: Palmtree Container
 
 [![License](http://img.shields.io/packagist/l/palmtree/container.svg)](LICENSE)
 [![Travis](https://img.shields.io/travis/palmtreephp/container.svg)](https://travis-ci.org/palmtreephp/container)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/palmtreephp/container.svg)](https://scrutinizer-ci.com/g/palmtreephp/container/)
 [![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/palmtreephp/container.svg)](https://scrutinizer-ci.com/g/palmtreephp/container/)
 
-A [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible service container for Palmtree PHP.
+A [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible service container
 
-Supports environment variable parameters.
+Supports environment variable parameters, factories and private services.
 
 ## Requirements
 * PHP >= 5.6
