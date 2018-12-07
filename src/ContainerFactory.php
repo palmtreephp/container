@@ -6,14 +6,14 @@ use Symfony\Component\Yaml\Yaml;
 
 class ContainerFactory
 {
-    /**
-     * @param string $configFile
-     *
-     * @return Container
-     */
-    public static function create($configFile)
+    /** @var Container */
+    private $container;
+    /** @var array */
+    private $phpImports = [];
+
+    public function __construct($configFile)
     {
-        $yaml = static::parseYamlFile($configFile);
+        $yaml = $this->parseYamlFile($configFile);
 
         if (!isset($yaml['services'])) {
             $yaml['services'] = [];
@@ -23,28 +23,63 @@ class ContainerFactory
             $yaml['parameters'] = [];
         }
 
-        $container = new Container($yaml['services'], $yaml['parameters']);
+        $this->container = new Container($yaml['services'], $yaml['parameters']);
 
-        // Parse again after the container again to import PHP files
-        static::parseYamlFile($configFile, $container);
+        foreach ($this->phpImports as $file) {
+            self::requirePhpFile($file, $this->container);
+        }
 
-        $container->instantiateServices();
-
-        return $container;
+        $this->container->instantiateServices();
     }
 
     /**
-     * @param string         $file
-     * @param Container|null $container
+     * @param string $configFile
+     *
+     * @return Container
+     */
+    public static function create($configFile)
+    {
+        $factory = new self($configFile);
+
+        return $factory->container;
+    }
+
+    /**
+     * @param string $file
      *
      * @return mixed
      */
-    private static function parseYamlFile($file, $container = null)
+    private function parseYamlFile($file)
     {
-        $data = Yaml::parse(file_get_contents($file));
+        $data = Yaml::parseFile($file);
 
         if (isset($data['imports'])) {
-            $data = static::parseImports($data, dirname($file), $container);
+            $data = $this->parseImports($data, dirname($file));
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array  $data
+     * @param string $dir
+     *
+     * @return mixed
+     */
+    private function parseImports($data, $dir)
+    {
+        foreach ($data['imports'] as $key => $import) {
+            $resource = self::getImportResource($dir, $import);
+
+            $extension = pathinfo($resource, PATHINFO_EXTENSION);
+
+            if ($extension === 'yml' || $extension === 'yaml') {
+                $data = array_replace_recursive($data, $this->parseYamlFile($resource));
+                unset($data['imports'][$key]);
+            } elseif ($extension === 'php') {
+                $this->phpImports[] = $resource;
+                unset($data['imports'][$key]);
+            }
         }
 
         return $data;
@@ -54,37 +89,17 @@ class ContainerFactory
      * @param string    $file
      * @param Container $container
      */
-    private static function parsePhpFile($file, Container $container)
+    private static function requirePhpFile($file, $container)
     {
-        require $file;
+        require($file);
     }
 
     /**
-     * @param array          $data
-     * @param string         $dir
-     * @param Container|null $container
+     * @param string $dir
+     * @param array  $import
      *
-     * @return mixed
+     * @return string
      */
-    private static function parseImports($data, $dir, $container = null)
-    {
-        foreach ($data['imports'] as $key => $import) {
-            $resource = self::getImportResource($dir, $import);
-
-            $extension = pathinfo($resource, PATHINFO_EXTENSION);
-
-            if ($extension === 'yml' || $extension === 'yaml') {
-                $data = array_replace_recursive($data, static::parseYamlFile($resource));
-                unset($data['imports'][$key]);
-            } elseif ($extension === 'php' && $container instanceof Container) {
-                static::parsePhpFile($resource, $container);
-                unset($data['imports'][$key]);
-            }
-        }
-
-        return $data;
-    }
-
     private static function getImportResource($dir, $import)
     {
         $resource = $import['resource'];
