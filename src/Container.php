@@ -92,16 +92,12 @@ class Container implements ContainerInterface
      *
      * @return bool
      */
-    public function hasDefinition($key)
+    public function hasDefinition(string $key): bool
     {
         return isset($this->definitions[$key]);
     }
 
-    /**
-     * @param string     $key
-     * @param Definition $definition
-     */
-    public function addDefinition($key, Definition $definition)
+    public function addDefinition(string $key, Definition $definition)
     {
         $this->definitions[$key] = $definition;
     }
@@ -115,7 +111,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws ParameterNotFoundException
      */
-    public function getParameter($key, $default = null)
+    public function getParameter(string $key, $default = null)
     {
         if (!$this->hasParameter($key)) {
             if (func_num_args() < 2) {
@@ -137,7 +133,7 @@ class Container implements ContainerInterface
      * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
      */
-    public function setParameter($key, $value)
+    public function setParameter(string $key, $value)
     {
         $this->parameters[$key] = $this->resolveArg($value);
     }
@@ -149,7 +145,7 @@ class Container implements ContainerInterface
      *
      * @return bool
      */
-    public function hasParameter($key)
+    public function hasParameter(string $key): bool
     {
         return isset($this->parameters[$key]) || array_key_exists($key, $this->parameters);
     }
@@ -160,7 +156,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws ServiceNotFoundException
      */
-    private function inject($key)
+    private function inject(string $key)
     {
         try {
             $this->get($key);
@@ -201,12 +197,7 @@ class Container implements ContainerInterface
         return $service;
     }
 
-    /**
-     * @param array $args
-     *
-     * @return array
-     */
-    private function resolveArgs(array $args)
+    private function resolveArgs(array $args): array
     {
         foreach ($args as $key => &$arg) {
             if (is_array($arg)) {
@@ -263,12 +254,7 @@ class Container implements ContainerInterface
         }, $arg);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    private function getEnvParameterKey($value)
+    private function getEnvParameterKey(string $value): ?string
     {
         if (strpos($value, 'env(') === 0 && substr($value, -1) === ')' && $value !== 'env()') {
             return substr($value, 4, -1);
@@ -282,7 +268,7 @@ class Container implements ContainerInterface
      *
      * @return string|bool
      */
-    private function getEnv($key)
+    private function getEnv(string $key)
     {
         if (isset($this->envCache[$key]) || array_key_exists($key, $this->envCache)) {
             return $this->envCache[$key];

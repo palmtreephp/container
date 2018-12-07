@@ -26,7 +26,7 @@ class Definition
      *
      * @throws InvalidDefinitionException
      */
-    public static function fromYaml(array $yaml)
+    public static function fromYaml(array $yaml): Definition
     {
         if (!isset($yaml['class']) && !isset($yaml['factory'])) {
             throw new InvalidDefinitionException("Missing required 'class' argument. Must be a FQCN.");
@@ -34,113 +34,69 @@ class Definition
 
         $definition = new self();
 
-        if (isset($yaml['class'])) {
-            $definition->setClass($yaml['class']);
-        }
+        $definition->setClass($yaml['class'] ?? null)
+                   ->setFactory($yaml['factory'] ?? [])
+                   ->setLazy($yaml['lazy'] ?? false)
+                   ->setPublic($yaml['public'] ?? true)
+                   ->setArguments($yaml['arguments'] ?? []);
 
-        if (isset($yaml['factory'])) {
-            $definition->setFactory($yaml['factory']);
-        }
-
-        $definition->setLazy(isset($yaml['lazy']) ? $yaml['lazy'] : false);
-        $definition->setPublic(isset($yaml['public']) ? $yaml['public'] : true);
-
-        if (isset($yaml['arguments'])) {
-            $definition->setArguments($yaml['arguments']);
-        }
-
-        if (isset($yaml['calls'])) {
-            foreach ($yaml['calls'] as $call) {
-                $methodCall = MethodCall::fromYaml($call);
-                $definition->addMethodCall($methodCall);
-            }
+        foreach ($yaml['calls'] ?? [] as $call) {
+            $methodCall = MethodCall::fromYaml($call);
+            $definition->addMethodCall($methodCall);
         }
 
         return $definition;
     }
 
-    /**
-     * @return string
-     */
-    public function getClass()
+    public function getClass(): string
     {
         return $this->class;
     }
 
-    /**
-     * @param string $class
-     *
-     * @return Definition
-     */
-    public function setClass($class)
+    public function setClass(?string $class): self
     {
         $this->class = $class;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isLazy()
+    public function isLazy(): bool
     {
         return $this->lazy;
     }
 
-    /**
-     * @param bool $lazy
-     *
-     * @return Definition
-     */
-    public function setLazy($lazy)
+    public function setLazy(bool $lazy): self
     {
-        $this->lazy = (bool)$lazy;
+        $this->lazy = $lazy;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPublic()
+    public function isPublic(): bool
     {
         return $this->public;
     }
 
-    /**
-     * @param bool $public
-     */
-    public function setPublic($public)
+    public function setPublic(bool $public): self
     {
         $this->public = $public;
+
+        return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getArguments()
+    public function getArguments(): ?array
     {
         return $this->arguments;
     }
 
-    /**
-     * @param array $arguments
-     *
-     * @return Definition
-     */
-    public function setArguments(array $arguments)
+    public function setArguments(array $arguments): self
     {
         $this->arguments = $arguments;
 
         return $this;
     }
 
-    /**
-     * @param MethodCall $methodCall
-     *
-     * @return Definition
-     */
-    public function addMethodCall(MethodCall $methodCall)
+    public function addMethodCall(MethodCall $methodCall): self
     {
         $this->methodCalls[] = $methodCall;
 
@@ -150,7 +106,7 @@ class Definition
     /**
      * @return MethodCall[]
      */
-    public function getMethodCalls()
+    public function getMethodCalls(): array
     {
         return $this->methodCalls;
     }
@@ -160,7 +116,7 @@ class Definition
      *
      * @return Definition
      */
-    public function setMethodCalls(array $methodCalls)
+    public function setMethodCalls(array $methodCalls): self
     {
         foreach ($methodCalls as $methodCall) {
             $this->addMethodCall($methodCall);
@@ -169,10 +125,7 @@ class Definition
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getFactory()
+    public function getFactory(): ?array
     {
         return $this->factory;
     }
@@ -182,7 +135,7 @@ class Definition
      *
      * @return Definition
      */
-    public function setFactory($factory)
+    public function setFactory($factory): self
     {
         if (is_string($factory)) {
             $factory = explode(':', $factory, 2);
