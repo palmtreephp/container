@@ -11,7 +11,7 @@ class ContainerFactory
     /** @var array */
     private $phpImports = [];
 
-    public function __construct($configFile)
+    private function __construct($configFile)
     {
         $yaml = $this->parseYamlFile($configFile);
 
@@ -91,7 +91,7 @@ class ContainerFactory
      */
     private static function requirePhpFile($file, $container)
     {
-        require($file);
+        require $file;
     }
 
     /**
