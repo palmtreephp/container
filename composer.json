@@ -1,47 +1,47 @@
 {
-  "name": "palmtree/container",
-  "type": "library",
-  "description": "Service Container component for Palmtree PHP",
-  "keywords": [
-  ],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Andy Palmer",
-      "email": "andy@andypalmer.me",
-      "homepage": "https://andypalmer.me"
+    "name": "palmtree/container",
+    "type": "library",
+    "description": "Service Container component for Palmtree PHP",
+    "keywords": [
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andy Palmer",
+            "email": "andy@andypalmer.me",
+            "homepage": "https://andypalmer.me"
+        }
+    ],
+    "require": {
+        "php": ">=5.6",
+        "symfony/yaml": "^3.3",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "~2.8",
+        "phpunit/phpunit": "~5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Palmtree\\Container\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Palmtree\\Container\\Tests\\Fixtures\\": "tests/fixtures"
+        }
+    },
+    "provide": {
+        "psr/container-implementation": "1.0.0"
+    },
+    "scripts": {
+        "test": "./vendor/bin/phpunit -v",
+        "sniff": "./vendor/bin/phpcs -v",
+        "lint": "find -L .  -path ./vendor -prune -o -type f -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l"
+    },
+    "config": {
+        "platform": {
+            "php": "5.6"
+        }
     }
-  ],
-  "require": {
-    "php": ">=5.6",
-    "symfony/yaml": "^3.3",
-    "psr/container": "^1.0"
-  },
-  "require-dev": {
-    "squizlabs/php_codesniffer": "~2.8",
-    "phpunit/phpunit": "~5.7"
-  },
-  "autoload": {
-    "psr-4": {
-      "Palmtree\\Container\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Palmtree\\Container\\Tests\\Fixtures\\": "tests/fixtures"
-    }
-  },
-  "provide": {
-    "psr/container-implementation": "1.0.0"
-  },
-  "scripts": {
-    "test": "./vendor/bin/phpunit -v",
-    "sniff": "./vendor/bin/phpcs -v",
-    "lint": "find -L .  -path ./vendor -prune -o -type f -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l"
-  },
-  "config": {
-    "platform": {
-      "php": "5.6"
-    }
-  }
 }
