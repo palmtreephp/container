@@ -47,7 +47,7 @@ class ContainerFactory
     /**
      * @param string $file
      *
-     * @return mixed
+     * @return array
      */
     private function parseYamlFile($file)
     {
@@ -64,7 +64,7 @@ class ContainerFactory
      * @param array  $data
      * @param string $dir
      *
-     * @return mixed
+     * @return array
      */
     private function parseImports($data, $dir)
     {
