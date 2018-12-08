@@ -4,7 +4,7 @@
 
     <file>src</file>
 
-    <arg name="report" value="summary"/>
+    <arg name="report" value="full"/>
     <arg name="colors"/>
     <arg value="sp"/>
 

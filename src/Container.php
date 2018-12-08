@@ -10,20 +10,14 @@ use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
-    /** Regex for single parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/^%([^%\s]+)%$/';
-    /** Regex for multiple parameters in a string */
-    const PATTERN_MULTI_PARAMETER = '/%%|%([^%\s]+)%/';
-
     /** @var Definition[] */
     private $definitions = [];
     /** @var mixed[] */
     private $services = [];
     /** @var array */
     private $parameters = [];
-
-    /** @var array */
-    private $envCache = [];
+    /** @var Resolver */
+    private $resolver;
 
     public function __construct(array $definitions = [], array $parameters = [])
     {
@@ -31,8 +25,10 @@ class Container implements ContainerInterface
             $this->addDefinition($key, Definition::fromYaml($definitionArgs));
         }
 
+        $this->resolver = new Resolver($this, $this->services);
+
         $this->parameters = $parameters;
-        $this->parameters = $this->resolveArgs($this->parameters);
+        $this->parameters = $this->resolver->resolveArgs($this->parameters);
     }
 
     /**
@@ -92,16 +88,12 @@ class Container implements ContainerInterface
      *
      * @return bool
      */
-    public function hasDefinition($key)
+    public function hasDefinition(string $key): bool
     {
         return isset($this->definitions[$key]);
     }
 
-    /**
-     * @param string     $key
-     * @param Definition $definition
-     */
-    public function addDefinition($key, Definition $definition)
+    public function addDefinition(string $key, Definition $definition)
     {
         $this->definitions[$key] = $definition;
     }
@@ -115,7 +107,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws ParameterNotFoundException
      */
-    public function getParameter($key, $default = null)
+    public function getParameter(string $key, $default = null)
     {
         if (!$this->hasParameter($key)) {
             if (func_num_args() < 2) {
@@ -137,9 +129,9 @@ class Container implements ContainerInterface
      * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
      */
-    public function setParameter($key, $value)
+    public function setParameter(string $key, $value)
     {
-        $this->parameters[$key] = $this->resolveArg($value);
+        $this->parameters[$key] = $this->resolver->resolveArg($value);
     }
 
     /**
@@ -149,26 +141,9 @@ class Container implements ContainerInterface
      *
      * @return bool
      */
-    public function hasParameter($key)
+    public function hasParameter(string $key): bool
     {
         return isset($this->parameters[$key]) || array_key_exists($key, $this->parameters);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return mixed
-     * @throws ServiceNotFoundException
-     */
-    private function inject($key)
-    {
-        try {
-            $this->get($key);
-        } catch (ServiceNotPublicException $e) {
-            // Ensures the service is created. Private services are allowed to be injected.
-        }
-
-        return $this->services[$key];
     }
 
     /**
@@ -180,126 +155,24 @@ class Container implements ContainerInterface
      */
     private function create(Definition $definition)
     {
-        $args = $this->resolveArgs($definition->getArguments());
+        $args = $this->resolver->resolveArgs($definition->getArguments());
 
         if ($factory = $definition->getFactory()) {
             list($class, $method) = $factory;
-            $class   = $this->resolveArg($class);
-            $method  = $this->resolveArg($method);
+            $class   = $this->resolver->resolveArg($class);
+            $method  = $this->resolver->resolveArg($method);
             $service = $class::$method(...$args);
         } else {
-            $class   = $this->resolveArg($definition->getClass());
+            $class   = $this->resolver->resolveArg($definition->getClass());
             $service = new $class(...$args);
         }
 
         foreach ($definition->getMethodCalls() as $methodCall) {
             $methodName = $methodCall->getName();
-            $methodArgs = $this->resolveArgs($methodCall->getArguments());
+            $methodArgs = $this->resolver->resolveArgs($methodCall->getArguments());
             $service->$methodName(...$methodArgs);
         }
 
         return $service;
-    }
-
-    /**
-     * @param array $args
-     *
-     * @return array
-     */
-    private function resolveArgs(array $args)
-    {
-        foreach ($args as $key => &$arg) {
-            if (is_array($arg)) {
-                $arg = $this->resolveArgs($arg);
-            } else {
-                $arg = $this->resolveArg($arg);
-            }
-        }
-
-        return $args;
-    }
-
-    /**
-     * @param mixed $arg
-     *
-     * @return mixed
-     * @throws ParameterNotFoundException
-     * @throws ServiceNotFoundException
-     */
-    private function resolveArg($arg)
-    {
-        if (!is_string($arg)) {
-            return $arg;
-        }
-
-        if (strrpos($arg, '@') === 0) {
-            return $this->inject(substr($arg, 1));
-        }
-
-        // Resolve a single parameter value e.g %my_param%
-        // Used for non-string values (boolean, integer etc)
-        if (preg_match(self::PATTERN_PARAMETER, $arg, $matches)) {
-            $envKey = $this->getEnvParameterKey($matches[1]);
-
-            if (!is_null($envKey)) {
-                return $this->getEnv($envKey);
-            }
-
-            return $this->getParameter($matches[1]);
-        }
-
-        // Resolve multiple parameters in a string e.g /%parent_dir%/somewhere/%child_dir%
-        return preg_replace_callback(self::PATTERN_MULTI_PARAMETER, function ($matches) {
-            // Skip %% to allow escaping percent signs
-            if (!isset($matches[1])) {
-                return '%';
-            }
-
-            if ($envKey = $this->getEnvParameterKey($matches[1])) {
-                return $this->getEnv($envKey);
-            }
-
-            return $this->getParameter($matches[1]);
-        }, $arg);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    private function getEnvParameterKey($value)
-    {
-        if (strpos($value, 'env(') === 0 && substr($value, -1) === ')' && $value !== 'env()') {
-            return substr($value, 4, -1);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return string|bool
-     */
-    private function getEnv($key)
-    {
-        if (isset($this->envCache[$key]) || array_key_exists($key, $this->envCache)) {
-            return $this->envCache[$key];
-        }
-
-        $envVar = getenv($key);
-
-        if (!$envVar) {
-            try {
-                $envVar = $this->resolveArg($this->getParameter("env($key)"));
-            } catch (ParameterNotFoundException $exception) {
-                // do nothing
-            }
-        }
-
-        $this->envCache[$key] = $envVar;
-
-        return $this->envCache[$key];
     }
 }

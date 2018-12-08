@@ -9,56 +9,37 @@ class MethodCall
     /** @var array */
     protected $arguments = [];
 
-    /**
-     * @param array $yaml
-     * @return MethodCall
-     */
-    public static function fromYaml(array $yaml)
+    public static function fromYaml(array $yaml): MethodCall
     {
         $methodCall = new self();
 
-        $methodCall->setName($yaml['method']);
-
-        if (isset($yaml['arguments'])) {
-            $methodCall->setArguments($yaml['arguments']);
-        }
+        $methodCall->setName($yaml['method'])
+                   ->setArguments($yaml['arguments'] ?? []);
 
         return $methodCall;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     * @return MethodCall
-     */
-    public function setName($name)
+    public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getArguments()
+    public function getArguments(): array
     {
         return $this->arguments;
     }
 
-    /**
-     * @param array $arguments
-     * @return MethodCall
-     */
-    public function setArguments(array $arguments)
+    public function setArguments(array $arguments): self
     {
         $this->arguments = $arguments;
+
         return $this;
     }
 }

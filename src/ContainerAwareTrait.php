@@ -12,10 +12,7 @@ trait ContainerAwareTrait
         $this->container = $container;
     }
 
-    /**
-     * @return Container
-     */
-    public function getContainer()
+    public function getContainer(): Container
     {
         return $this->container;
     }
@@ -24,7 +21,7 @@ trait ContainerAwareTrait
      * @param string $key
      * @return mixed
      */
-    public function get($key)
+    public function get(string $key)
     {
         return $this->container->get($key);
     }
@@ -34,7 +31,7 @@ trait ContainerAwareTrait
      * @param mixed  $default
      * @return mixed
      */
-    public function getParameter($key, $default = null)
+    public function getParameter(string $key, $default = null)
     {
         return $this->container->getParameter($key, $default);
     }

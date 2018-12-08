@@ -11,19 +11,11 @@ class ContainerFactory
     /** @var array */
     private $phpImports = [];
 
-    private function __construct($configFile)
+    private function __construct(string $configFile)
     {
         $yaml = $this->parseYamlFile($configFile);
 
-        if (!isset($yaml['services'])) {
-            $yaml['services'] = [];
-        }
-
-        if (!isset($yaml['parameters'])) {
-            $yaml['parameters'] = [];
-        }
-
-        $this->container = new Container($yaml['services'], $yaml['parameters']);
+        $this->container = new Container($yaml['services'] ?? [], $yaml['parameters'] ?? []);
 
         foreach ($this->phpImports as $file) {
             self::requirePhpFile($file, $this->container);
@@ -32,43 +24,25 @@ class ContainerFactory
         $this->container->instantiateServices();
     }
 
-    /**
-     * @param string $configFile
-     *
-     * @return Container
-     */
-    public static function create($configFile)
+    public static function create(string $configFile): Container
     {
         $factory = new self($configFile);
 
         return $factory->container;
     }
 
-    /**
-     * @param string $file
-     *
-     * @return array
-     */
-    private function parseYamlFile($file)
+    private function parseYamlFile(string $file): array
     {
-        $data = Yaml::parseFile($file);
+        $data = Yaml::parseFile($file) ?? [];
 
-        if (isset($data['imports'])) {
-            $data = $this->parseImports($data, dirname($file));
-        }
+        $data = $this->parseImports($data, dirname($file));
 
         return $data;
     }
 
-    /**
-     * @param array  $data
-     * @param string $dir
-     *
-     * @return array
-     */
-    private function parseImports($data, $dir)
+    private function parseImports(array $data, string $dir): array
     {
-        foreach ($data['imports'] as $key => $import) {
+        foreach ($data['imports'] ?? [] as $key => $import) {
             $resource = self::getImportResource($dir, $import);
 
             $extension = pathinfo($resource, PATHINFO_EXTENSION);
@@ -85,22 +59,12 @@ class ContainerFactory
         return $data;
     }
 
-    /**
-     * @param string    $file
-     * @param Container $container
-     */
-    private static function requirePhpFile($file, $container)
+    private static function requirePhpFile(string $file, Container $container)
     {
         require $file;
     }
 
-    /**
-     * @param string $dir
-     * @param array  $import
-     *
-     * @return string
-     */
-    private static function getImportResource($dir, $import)
+    private static function getImportResource(string $dir, array $import): string
     {
         $resource = $import['resource'];
 

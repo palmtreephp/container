@@ -10,7 +10,9 @@ A [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible service container
 Supports environment variable parameters, factories and private services.
 
 ## Requirements
-* PHP >= 5.6
+* PHP >= 7.1
+
+For PHP >= 5.6 support use [v1.0](https://github.com/palmtreephp/container/tree/v1.0.0)
 
 ## Installation
 
