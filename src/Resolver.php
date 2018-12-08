@@ -19,10 +19,10 @@ class Resolver
     /** @var array */
     private $envCache = [];
 
-    public function __construct(Container $container, array &$servicesRef)
+    public function __construct(Container $container, array &$containerServices)
     {
         $this->container         = $container;
-        $this->containerServices =& $servicesRef;
+        $this->containerServices =& $containerServices;
     }
 
     public function resolveArgs(array $args): array
