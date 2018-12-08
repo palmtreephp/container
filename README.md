@@ -1,9 +1,9 @@
 # :palm_tree: Palmtree Container
 
 [![License](http://img.shields.io/packagist/l/palmtree/container.svg)](LICENSE)
-[![Travis](https://img.shields.io/travis/palmtreephp/container.svg)](https://travis-ci.org/palmtreephp/container)
+[![Build Status](https://scrutinizer-ci.com/g/palmtreephp/container/badges/build.png)](https://scrutinizer-ci.com/g/palmtreephp/container/build-status/master)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/palmtreephp/container.svg)](https://scrutinizer-ci.com/g/palmtreephp/container/)
-[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/palmtreephp/container.svg)](https://scrutinizer-ci.com/g/palmtreephp/container/)
+[![Code Coverage](https://scrutinizer-ci.com/g/palmtreephp/container/badges/coverage.png)](https://scrutinizer-ci.com/g/palmtreephp/container/)
 
 A [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible service container
 
