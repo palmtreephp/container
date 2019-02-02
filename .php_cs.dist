@@ -1,0 +1,39 @@
+<?php
+
+$config = PhpCsFixer\Config::create();
+$config
+    ->setRules([
+        '@Symfony'                           => true,
+        '@Symfony:risky'                     => true,
+        '@PHPUnit48Migration:risky'          => true,
+        'array_syntax'                       => ['syntax' => 'short'],
+        'concat_space'                       => ['spacing' => 'one'],
+        'fopen_flags'                        => false,
+        'ordered_imports'                    => true,
+        'protected_to_private'               => false,
+        'binary_operator_spaces'             => ['align_double_arrow' => true, 'align_equals' => true],
+        'yoda_style'                         => false,
+        'phpdoc_inline_tag'                  => false,
+        'phpdoc_annotation_without_dot'      => false,
+        'cast_spaces'                        => ['space' => 'none'],
+        // Part of future @Symfony ruleset in PHP-CS-Fixer To be removed from the config file once upgrading
+        'phpdoc_types_order'                 => [
+            'null_adjustment' => 'always_last',
+            'sort_algorithm'  => 'none',
+        ],
+        'native_function_invocation'         => [
+            'include' => ['@compiler_optimized'],
+            'scope'   => 'namespaced',
+        ],
+    ])
+    ->setCacheFile('.php_cs.cache')
+    ->setRiskyAllowed(true)
+    ->setFinder(
+        PhpCsFixer\Finder::create()
+                         ->in(__DIR__ . '/src')
+                         //->in(__DIR__ . '/tests')
+                         ->notPath('fixtures')
+                         ->append([__FILE__])
+    );
+
+return $config;
