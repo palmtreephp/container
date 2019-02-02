@@ -5,9 +5,9 @@ namespace Palmtree\Container\Definition;
 class MethodCall
 {
     /** @var string */
-    protected $name;
+    private $name;
     /** @var array */
-    protected $arguments = [];
+    private $arguments = [];
 
     public static function fromYaml(array $yaml): self
     {
