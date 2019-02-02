@@ -65,7 +65,6 @@ class ParameterTest extends TestCase
         $this->assertEquals('/path/to/zorb', $container->getParameter('multi_env'));
     }
 
-
     public function testMissingServicesKey()
     {
         $container = ContainerFactory::create(__DIR__ . '/fixtures/no_services.yml');
@@ -93,7 +92,7 @@ class ParameterTest extends TestCase
     {
         $container = $this->createContainer();
 
-        $this->assertEquals([1,2,3], $container->getParameter('compound'));
+        $this->assertEquals([1, 2, 3], $container->getParameter('compound'));
     }
 
     /**
