@@ -9,9 +9,9 @@ use Palmtree\Container\Exception\ServiceNotPublicException;
 class Resolver
 {
     /** Regex for single parameters e.g '%my.parameter%' */
-    const PATTERN_PARAMETER = '/^%([^%\s]+)%$/';
+    private const PATTERN_PARAMETER = '/^%([^%\s]+)%$/';
     /** Regex for multiple parameters in a string */
-    const PATTERN_MULTI_PARAMETER = '/%%|%([^%\s]+)%/';
+    private const PATTERN_MULTI_PARAMETER = '/%%|%([^%\s]+)%/';
     /** @var Container */
     private $container;
     /** @var array */
