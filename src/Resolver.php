@@ -52,7 +52,7 @@ class Resolver
             return $arg;
         }
 
-        if (strrpos($arg, '@') === 0) {
+        if ($arg[0] === '@') {
             return $this->inject(substr($arg, 1));
         }
 
@@ -133,9 +133,7 @@ class Resolver
             return $this->envCache[$key];
         }
 
-        $envVar = getenv($key);
-
-        if (!$envVar) {
+        if (!$envVar = getenv($key)) {
             try {
                 $envVar = $this->resolveArg($this->container->getParameter("env($key)"));
             } catch (ParameterNotFoundException $exception) {
