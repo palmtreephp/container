@@ -3,6 +3,7 @@
 namespace Palmtree\Container\Tests;
 
 use Palmtree\Container\ContainerFactory;
+use Palmtree\Container\Exception\ParameterNotFoundException;
 use Palmtree\Container\Tests\Fixtures\Service\Foo;
 use PHPUnit\Framework\TestCase;
 
@@ -72,10 +73,10 @@ class ParameterTest extends TestCase
         $this->assertEquals('bar', $container->getParameter('foo'));
     }
 
-
-    /** @expectedException \Palmtree\Container\Exception\ParameterNotFoundException */
     public function testParameterNotFoundException()
     {
+        $this->expectException(ParameterNotFoundException::class);
+
         $container = $this->createContainer();
 
         $container->getParameter('noop');

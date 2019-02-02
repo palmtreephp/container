@@ -4,6 +4,8 @@ namespace Palmtree\Container\Tests;
 
 use Palmtree\Container\Container;
 use Palmtree\Container\ContainerFactory;
+use Palmtree\Container\Exception\ServiceNotFoundException;
+use Palmtree\Container\Exception\ServiceNotPublicException;
 use Palmtree\Container\Tests\Fixtures\Service\Bar;
 use Palmtree\Container\Tests\Fixtures\Service\Foo;
 use Palmtree\Container\Tests\Fixtures\Service\LazyLoad;
@@ -62,17 +64,19 @@ class ServiceTest extends TestCase
         $this->assertInstanceOf(Foo::class, $foo);
     }
 
-    /** @expectedException \Palmtree\Container\Exception\ServiceNotPublicException */
     public function testServiceNotPublicException()
     {
+        $this->expectException(ServiceNotPublicException::class);
+
         $container = $this->createContainer();
 
         $container->get('private_service');
     }
 
-    /** @expectedException \Palmtree\Container\Exception\ServiceNotFoundException */
     public function testParameterNotFoundException()
     {
+        $this->expectException(ServiceNotFoundException::class);
+
         $container = $this->createContainer();
 
         $container->get('noop');

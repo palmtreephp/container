@@ -5,14 +5,16 @@ namespace Palmtree\Container\Tests;
 use Palmtree\Container\Container;
 use Palmtree\Container\Definition\Definition;
 use Palmtree\Container\Definition\MethodCall;
+use Palmtree\Container\Exception\InvalidDefinitionException;
 use Palmtree\Container\Tests\Fixtures\Service\PhpDefinedService;
 use PHPUnit\Framework\TestCase;
 
 class DefinitionTest extends TestCase
 {
-    /** @expectedException \Palmtree\Container\Exception\InvalidDefinitionException */
     public function testInvalidDefinitionException()
     {
+        $this->expectException(InvalidDefinitionException::class);
+
         Definition::fromYaml([]);
     }
 
