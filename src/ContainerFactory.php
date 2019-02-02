@@ -35,7 +35,7 @@ class ContainerFactory
     {
         $data = Yaml::parseFile($file) ?? [];
 
-        $data = $this->parseImports($data, dirname($file));
+        $data = $this->parseImports($data, \dirname($file));
 
         return $data;
     }

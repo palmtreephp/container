@@ -22,13 +22,13 @@ class Resolver
     public function __construct(Container $container, array &$containerServices)
     {
         $this->container         = $container;
-        $this->containerServices =& $containerServices;
+        $this->containerServices = &$containerServices;
     }
 
     public function resolveArgs(array $args): array
     {
         foreach ($args as $key => &$arg) {
-            if (is_array($arg)) {
+            if (\is_array($arg)) {
                 $arg = $this->resolveArgs($arg);
             } else {
                 $arg = $this->resolveArg($arg);
@@ -42,12 +42,13 @@ class Resolver
      * @param mixed $arg
      *
      * @return mixed
+     *
      * @throws ServiceNotFoundException
      * @throws ParameterNotFoundException
      */
     public function resolveArg($arg)
     {
-        if (!is_string($arg)) {
+        if (!\is_string($arg)) {
             return $arg;
         }
 
@@ -62,6 +63,7 @@ class Resolver
      * @param string $key
      *
      * @return mixed
+     *
      * @throws ServiceNotFoundException
      */
     private function inject(string $key)
@@ -79,6 +81,7 @@ class Resolver
      * @param string $arg
      *
      * @return mixed
+     *
      * @throws ParameterNotFoundException
      */
     private function resolveParameter($arg)
@@ -88,7 +91,7 @@ class Resolver
         if (preg_match(self::PATTERN_PARAMETER, $arg, $matches)) {
             $envKey = $this->getEnvParameterKey($matches[1]);
 
-            if (!is_null($envKey)) {
+            if ($envKey !== null) {
                 return $this->getEnv($envKey);
             }
 

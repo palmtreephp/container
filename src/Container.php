@@ -61,6 +61,7 @@ class Container implements ContainerInterface
      * @param string $key
      *
      * @return mixed
+     *
      * @throws ServiceNotFoundException
      * @throws ServiceNotPublicException
      */
@@ -105,12 +106,13 @@ class Container implements ContainerInterface
      * @param mixed  $default
      *
      * @return mixed
+     *
      * @throws ParameterNotFoundException
      */
     public function getParameter(string $key, $default = null)
     {
         if (!$this->hasParameter($key)) {
-            if (func_num_args() < 2) {
+            if (\func_num_args() < 2) {
                 throw new ParameterNotFoundException($key);
             }
 
@@ -159,6 +161,7 @@ class Container implements ContainerInterface
 
         if ($factory = $definition->getFactory()) {
             list($class, $method) = $factory;
+
             $class   = $this->resolver->resolveArg($class);
             $method  = $this->resolver->resolveArg($method);
             $service = $class::$method(...$args);

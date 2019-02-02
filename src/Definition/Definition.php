@@ -26,7 +26,7 @@ class Definition
      *
      * @throws InvalidDefinitionException
      */
-    public static function fromYaml(array $yaml): Definition
+    public static function fromYaml(array $yaml): self
     {
         if (!isset($yaml['class']) && !isset($yaml['factory'])) {
             throw new InvalidDefinitionException("Missing required 'class' argument. Must be a FQCN.");
@@ -137,7 +137,7 @@ class Definition
      */
     public function setFactory($factory): self
     {
-        if (is_string($factory)) {
+        if (\is_string($factory)) {
             $factory = explode(':', $factory, 2);
         }
 

@@ -19,6 +19,7 @@ trait ContainerAwareTrait
 
     /**
      * @param string $key
+     *
      * @return mixed
      */
     public function get(string $key)
@@ -29,6 +30,7 @@ trait ContainerAwareTrait
     /**
      * @param string $key
      * @param mixed  $default
+     *
      * @return mixed
      */
     public function getParameter(string $key, $default = null)

@@ -9,7 +9,7 @@ class MethodCall
     /** @var array */
     protected $arguments = [];
 
-    public static function fromYaml(array $yaml): MethodCall
+    public static function fromYaml(array $yaml): self
     {
         $methodCall = new self();
 
