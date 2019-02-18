@@ -31,12 +31,12 @@ class ParameterTest extends TestCase
 
     public function testEnvParameter()
     {
-        putenv('FOO=baz');
+        \putenv('FOO=baz');
         $container = $this->createContainer();
 
         $this->assertEquals('baz', $container->getParameter('foo'));
 
-        putenv('FOO');
+        \putenv('FOO');
     }
 
     public function testDefaultParameter()

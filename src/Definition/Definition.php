@@ -138,7 +138,7 @@ class Definition
     public function setFactory($factory): self
     {
         if (\is_string($factory)) {
-            $factory = explode(':', $factory, 2);
+            $factory = \explode(':', $factory, 2);
         }
 
         $this->factory = $factory;

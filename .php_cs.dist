@@ -5,7 +5,6 @@ $config
     ->setRules([
         '@Symfony'                           => true,
         '@Symfony:risky'                     => true,
-        '@PHPUnit48Migration:risky'          => true,
         'array_syntax'                       => ['syntax' => 'short'],
         'concat_space'                       => ['spacing' => 'one'],
         'fopen_flags'                        => false,
@@ -16,15 +15,7 @@ $config
         'phpdoc_inline_tag'                  => false,
         'phpdoc_annotation_without_dot'      => false,
         'cast_spaces'                        => ['space' => 'none'],
-        // Part of future @Symfony ruleset in PHP-CS-Fixer To be removed from the config file once upgrading
-        'phpdoc_types_order'                 => [
-            'null_adjustment' => 'always_last',
-            'sort_algorithm'  => 'none',
-        ],
-        'native_function_invocation'         => [
-            'include' => ['@compiler_optimized'],
-            'scope'   => 'namespaced',
-        ],
+        'native_function_invocation'         => true,
     ])
     ->setCacheFile('.php_cs.cache')
     ->setRiskyAllowed(true)

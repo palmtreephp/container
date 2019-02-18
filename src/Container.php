@@ -145,7 +145,7 @@ class Container implements ContainerInterface
      */
     public function hasParameter(string $key): bool
     {
-        return isset($this->parameters[$key]) || array_key_exists($key, $this->parameters);
+        return isset($this->parameters[$key]) || \array_key_exists($key, $this->parameters);
     }
 
     /**
