@@ -2,6 +2,8 @@ services:
     bar:
         class: Palmtree\Container\Tests\Fixtures\Service\Bar
 
+    Palmtree\Container\Tests\Fixtures\Service\Bar: ~
+
     baz:
         class: Palmtree\Container\Tests\Fixtures\Service\Baz
         arguments:

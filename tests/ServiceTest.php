@@ -73,6 +73,13 @@ class ServiceTest extends TestCase
         $container->get('private_service');
     }
 
+    public function testFQCNService()
+    {
+        $container = $this->createContainer();
+
+        $this->assertInstanceOf(Bar::class, $container->get(Bar::class));
+    }
+
     public function testParameterNotFoundException()
     {
         $this->expectException(ServiceNotFoundException::class);

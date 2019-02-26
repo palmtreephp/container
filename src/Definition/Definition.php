@@ -20,16 +20,21 @@ class Definition
     private $factory;
 
     /**
-     * @param array $yaml
+     * @param array|null  $yaml
+     * @param string|null $key
      *
      * @return Definition
      *
      * @throws InvalidDefinitionException
      */
-    public static function fromYaml(array $yaml): self
+    public static function fromYaml($yaml, ?string $key = null): self
     {
         if (!isset($yaml['class']) && !isset($yaml['factory'])) {
-            throw new InvalidDefinitionException("Missing required 'class' argument. Must be a FQCN.");
+            if ($key !== null) {
+                $yaml['class'] = $key;
+            } else {
+                throw new InvalidDefinitionException("Missing required 'class' argument. Must be a FQCN.");
+            }
         }
 
         $definition = new self();

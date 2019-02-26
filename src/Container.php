@@ -22,7 +22,7 @@ class Container implements ContainerInterface
     public function __construct(array $definitions = [], array $parameters = [])
     {
         foreach ($definitions as $key => $definitionArgs) {
-            $this->addDefinition($key, Definition::fromYaml($definitionArgs));
+            $this->addDefinition($key, Definition::fromYaml($definitionArgs, $key));
         }
 
         $this->resolver = new Resolver($this, $this->services);
