@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 class ParameterTest extends TestCase
 {
+    const FOO = 'Bar';
+
     public function testHasParameter()
     {
         $container = $this->createContainer();
@@ -37,6 +39,14 @@ class ParameterTest extends TestCase
         $this->assertEquals('baz', $container->getParameter('foo'));
 
         putenv('FOO');
+    }
+
+    public function testConstantParameter()
+    {
+        $container = $this->createContainer();
+
+        $this->assertSame(M_PI, $container->getParameter('pi'));
+        $this->assertSame(self::FOO, $container->getParameter('constant_foo'));
     }
 
     public function testDefaultParameter()

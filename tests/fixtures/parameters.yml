@@ -11,6 +11,8 @@ parameters:
     multi_env: '%multi_one%/%env(FOO)%'
     escaped_percent: '%%Hello%%'
     compound: '%some_ints%'
+    pi: "%constant(M_PI)%"
+    constant_foo: "%constant(\\Palmtree\\Container\\Tests\\ParameterTest::FOO)%"
     some_ints:
         - 1
         - 2
