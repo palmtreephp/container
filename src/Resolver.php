@@ -98,7 +98,7 @@ class Resolver
             $constKey = $this->getConstParameterKey($matches[1]);
 
             if ($constKey !== null) {
-                return constant($constKey);
+                return \constant($constKey);
             }
 
             return $this->container->getParameter($matches[1]);
@@ -116,7 +116,7 @@ class Resolver
             }
 
             if ($constKey = $this->getConstParameterKey($matches[1])) {
-                return constant($constKey);
+                return \constant($constKey);
             }
 
             return $this->container->getParameter($matches[1]);
@@ -134,8 +134,8 @@ class Resolver
 
     private function getConstParameterKey(string $value): ?string
     {
-        if (strpos($value, 'constant(') === 0 && substr($value, -1) === ')' && $value !== 'constant()') {
-            return substr($value, 9, -1);
+        if (\strpos($value, 'constant(') === 0 && \substr($value, -1) === ')' && $value !== 'constant()') {
+            return \substr($value, 9, -1);
         }
 
         return null;
