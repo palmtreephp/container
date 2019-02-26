@@ -95,6 +95,12 @@ class Resolver
                 return $this->getEnv($envKey);
             }
 
+            $constKey = $this->getConstParameterKey($matches[1]);
+
+            if ($constKey !== null) {
+                return constant($constKey);
+            }
+
             return $this->container->getParameter($matches[1]);
         }
 
@@ -109,6 +115,10 @@ class Resolver
                 return $this->getEnv($envKey);
             }
 
+            if ($constKey = $this->getConstParameterKey($matches[1])) {
+                return constant($constKey);
+            }
+
             return $this->container->getParameter($matches[1]);
         }, $arg);
     }
@@ -117,6 +127,15 @@ class Resolver
     {
         if (\strpos($value, 'env(') === 0 && \substr($value, -1) === ')' && $value !== 'env()') {
             return \substr($value, 4, -1);
+        }
+
+        return null;
+    }
+
+    private function getConstParameterKey(string $value): ?string
+    {
+        if (strpos($value, 'constant(') === 0 && substr($value, -1) === ')' && $value !== 'constant()') {
+            return substr($value, 9, -1);
         }
 
         return null;
