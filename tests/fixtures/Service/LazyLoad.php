@@ -8,6 +8,6 @@ class LazyLoad
 
     public function __construct()
     {
-        static::$instances++;
+        ++static::$instances;
     }
 }

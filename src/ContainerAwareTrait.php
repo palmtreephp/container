@@ -4,7 +4,7 @@ namespace Palmtree\Container;
 
 trait ContainerAwareTrait
 {
-    /** @var Container $container */
+    /** @var Container */
     protected $container;
 
     protected function setContainer(Container $container)
@@ -18,8 +18,6 @@ trait ContainerAwareTrait
     }
 
     /**
-     * @param string $key
-     *
      * @return mixed
      */
     public function get(string $key)
@@ -28,8 +26,7 @@ trait ContainerAwareTrait
     }
 
     /**
-     * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed
      */

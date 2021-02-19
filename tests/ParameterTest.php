@@ -33,19 +33,19 @@ class ParameterTest extends TestCase
 
     public function testEnvParameter()
     {
-        \putenv('FOO=baz');
+        putenv('FOO=baz');
         $container = $this->createContainer();
 
         $this->assertEquals('baz', $container->getParameter('foo'));
 
-        \putenv('FOO');
+        putenv('FOO');
     }
 
     public function testConstantParameter()
     {
         $container = $this->createContainer();
 
-        $this->assertSame(M_PI, $container->getParameter('pi'));
+        $this->assertSame(\M_PI, $container->getParameter('pi'));
         $this->assertSame(self::FOO, $container->getParameter('constant_foo'));
     }
 

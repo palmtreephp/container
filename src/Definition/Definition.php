@@ -20,8 +20,7 @@ class Definition
     private $factory;
 
     /**
-     * @param array|null  $yaml
-     * @param string|null $key
+     * @param array|null $yaml
      *
      * @return Definition
      *
@@ -143,7 +142,7 @@ class Definition
     public function setFactory($factory): self
     {
         if (\is_string($factory)) {
-            $factory = \explode(':', $factory, 2);
+            $factory = explode(':', $factory, 2);
         }
 
         $this->factory = $factory;

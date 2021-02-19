@@ -45,10 +45,10 @@ class ContainerFactory
         foreach ($data['imports'] ?? [] as $key => $import) {
             $resource = $this->getImportResource($dir, $import);
 
-            $extension = \pathinfo($resource, PATHINFO_EXTENSION);
+            $extension = pathinfo($resource, \PATHINFO_EXTENSION);
 
             if ($extension === 'yml' || $extension === 'yaml') {
-                $data = \array_replace_recursive($data, $this->parseYamlFile($resource));
+                $data = array_replace_recursive($data, $this->parseYamlFile($resource));
                 unset($data['imports'][$key]);
             } elseif ($extension === 'php') {
                 $this->phpImports[] = $resource;
@@ -79,11 +79,11 @@ class ContainerFactory
     private function isAbsolutePath(string $file): bool
     {
         if ($file[0] === '/' || $file[0] === '\\'
-            || (\strlen($file) > 3 && \ctype_alpha($file[0])
+            || (\strlen($file) > 3 && ctype_alpha($file[0])
                 && $file[1] === ':'
                 && ($file[2] === '\\' || $file[2] === '/')
             )
-            || null !== \parse_url($file, PHP_URL_SCHEME)
+            || null !== parse_url($file, \PHP_URL_SCHEME)
         ) {
             return true;
         }

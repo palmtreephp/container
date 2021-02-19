@@ -9,8 +9,6 @@ class Baz
 
     /**
      * Baz constructor.
-     *
-     * @param Foo $foo
      */
     public function __construct(Foo $foo)
     {

@@ -84,10 +84,6 @@ class Container implements ContainerInterface
 
     /**
      * Returns whether a definition with the given key exists within the container.
-     *
-     * @param string $key
-     *
-     * @return bool
      */
     public function hasDefinition(string $key): bool
     {
@@ -102,8 +98,7 @@ class Container implements ContainerInterface
     /**
      * Returns a parameter with the given key or a default value if given.
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed
      *
@@ -125,8 +120,7 @@ class Container implements ContainerInterface
     /**
      * Sets a parameter within the container.
      *
-     * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @throws ParameterNotFoundException
      * @throws ServiceNotFoundException
@@ -138,10 +132,6 @@ class Container implements ContainerInterface
 
     /**
      * Returns whether a parameter with the given key exists within the container.
-     *
-     * @param string $key
-     *
-     * @return bool
      */
     public function hasParameter(string $key): bool
     {
@@ -150,8 +140,6 @@ class Container implements ContainerInterface
 
     /**
      * Creates a service as defined by the Definition object.
-     *
-     * @param Definition $definition
      *
      * @return mixed
      */
