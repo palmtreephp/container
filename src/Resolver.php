@@ -48,7 +48,7 @@ class Resolver
      */
     public function resolveArg($arg)
     {
-        if (!\is_string($arg)) {
+        if (!\is_string($arg) || $arg === '') {
             return $arg;
         }
 
