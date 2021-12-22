@@ -18,9 +18,15 @@ class Container implements ContainerInterface
     private $parameters = [];
     /** @var Resolver */
     private $resolver;
+    /** @var Autowirer|null */
+    private $autowirer = null;
 
-    public function __construct(array $definitions = [], array $parameters = [])
+    public function __construct(array $definitions = [], array $parameters = [], array $config = [])
     {
+        if ($config['autowire'] ?? false) {
+            $this->autowirer = new Autowirer($this);
+        }
+
         foreach ($definitions as $key => $definitionArgs) {
             $this->addDefinition($key, Definition::fromYaml($definitionArgs));
         }
@@ -45,40 +51,34 @@ class Container implements ContainerInterface
 
     /**
      * Returns whether a service with the given key exists within the container.
-     *
-     * @param string $key
-     *
-     * @return bool
      */
-    public function has($key)
+    public function has(string $id): bool
     {
-        return isset($this->services[$key]);
+        return isset($this->services[$id]);
     }
 
     /**
      * Returns a service object with the given key.
      *
-     * @param string $key
-     *
      * @return mixed
      * @throws ServiceNotFoundException
      * @throws ServiceNotPublicException
      */
-    public function get($key)
+    public function get(string $id)
     {
-        if (!$this->has($key)) {
-            if (!$this->hasDefinition($key)) {
-                throw new ServiceNotFoundException($key);
+        if (!$this->has($id)) {
+            if (!$this->hasDefinition($id)) {
+                throw new ServiceNotFoundException($id);
             }
 
-            $this->services[$key] = $this->create($this->definitions[$key]);
+            $this->services[$id] = $this->create($this->definitions[$id]);
         }
 
-        if (!$this->definitions[$key]->isPublic()) {
-            throw new ServiceNotPublicException($key);
+        if (!$this->definitions[$id]->isPublic()) {
+            throw new ServiceNotPublicException($id);
         }
 
-        return $this->services[$key];
+        return $this->services[$id];
     }
 
     /**
@@ -156,6 +156,10 @@ class Container implements ContainerInterface
     private function create(Definition $definition)
     {
         $args = $this->resolver->resolveArgs($definition->getArguments());
+
+        if ($this->autowirer instanceof Autowirer) {
+            $args = $this->autowirer->wire($definition, $args);
+        }
 
         if ($factory = $definition->getFactory()) {
             list($class, $method) = $factory;

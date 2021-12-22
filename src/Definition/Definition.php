@@ -34,11 +34,13 @@ class Definition
 
         $definition = new self();
 
-        $definition->setClass($yaml['class'] ?? null)
-                   ->setFactory($yaml['factory'] ?? [])
-                   ->setLazy($yaml['lazy'] ?? false)
-                   ->setPublic($yaml['public'] ?? true)
-                   ->setArguments($yaml['arguments'] ?? []);
+        $definition
+            ->setClass($yaml['class'] ?? null)
+            ->setFactory($yaml['factory'] ?? [])
+            ->setLazy($yaml['lazy'] ?? false)
+            ->setPublic($yaml['public'] ?? true)
+            ->setArguments($yaml['arguments'] ?? [])
+        ;
 
         foreach ($yaml['calls'] ?? [] as $call) {
             $methodCall = MethodCall::fromYaml($call);

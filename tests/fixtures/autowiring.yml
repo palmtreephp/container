@@ -1,0 +1,9 @@
+services:
+    _config:
+        autowire: true
+
+    Palmtree\Container\Tests\Fixtures\Service\Bar: ~
+    Palmtree\Container\Tests\Fixtures\Service\Foo:
+        arguments:
+            - 1
+            - true

@@ -15,7 +15,14 @@ class ContainerFactory
     {
         $yaml = $this->parseYamlFile($configFile);
 
-        $this->container = new Container($yaml['services'] ?? [], $yaml['parameters'] ?? []);
+        $services = $yaml['services'] ?? [];
+
+        if (isset($services['_config'])) {
+            $config = $services['_config'];
+            unset($services['_config']);
+        }
+
+        $this->container = new Container($services, $yaml['parameters'] ?? [], $config ?? []);
 
         foreach ($this->phpImports as $file) {
             self::requirePhpFile($file, $this->container);

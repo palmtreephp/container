@@ -21,9 +21,9 @@ trait ContainerAwareTrait
      * @param string $key
      * @return mixed
      */
-    public function get(string $key)
+    public function get(string $id)
     {
-        return $this->container->get($key);
+        return $this->container->get($id);
     }
 
     /**
